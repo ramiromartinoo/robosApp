@@ -19,6 +19,8 @@ import com.proyectApp.robosApp.dto.ConfirmarRequest;
 import com.proyectApp.robosApp.dto.CrearPosteoRequest;
 import com.proyectApp.robosApp.dto.DenunciaResponse;
 import com.proyectApp.robosApp.dto.DenunciarRequest;
+import com.proyectApp.robosApp.dto.EditarPosteoRequest;
+import com.proyectApp.robosApp.dto.MiPosteoResponse;
 import com.proyectApp.robosApp.dto.PaginaResponse;
 import com.proyectApp.robosApp.dto.PosteoResponse;
 import com.proyectApp.robosApp.dto.PuntoHeatmapResponse;
@@ -45,9 +47,17 @@ public class PosteoController {
 		return posteoService.crear(request);
 	}
 
-	// Solo el autor, y solo durante los primeros minutos
+	// Los reportes de quien hace la petición
+	@GetMapping("/mios")
+	public PaginaResponse<MiPosteoResponse> mios(
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "20") int size) {
+		return posteoService.mios(page, size);
+	}
+
+	// Solo el autor, y solo durante los primeros minutos. La ubicación no se edita.
 	@PutMapping("/{id}")
-	public PosteoResponse editar(@PathVariable Long id, @Valid @RequestBody CrearPosteoRequest request) {
+	public MiPosteoResponse editar(@PathVariable Long id, @Valid @RequestBody EditarPosteoRequest request) {
 		return posteoService.editar(id, request);
 	}
 
