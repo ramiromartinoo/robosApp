@@ -13,6 +13,14 @@ type Opcion = {
   ruta: Href;
 };
 
+// Solo se muestra a quienes tienen rol de administrador
+const PANEL: Opcion = {
+  titulo: 'Panel de administrador',
+  detalle: 'Denuncias, usuarios y estadísticas',
+  icono: 'shield-checkmark-outline',
+  ruta: '/admin',
+};
+
 const OPCIONES: Opcion[] = [
   {
     titulo: 'Mis reportes',
@@ -32,6 +40,8 @@ const OPCIONES: Opcion[] = [
 export function CuentaScreen() {
   const router = useRouter();
   const { sesion } = useSesion();
+  const esAdmin = sesion?.rol === 'ADMIN';
+  const opciones = esAdmin ? [...OPCIONES, PANEL] : OPCIONES;
 
   return (
     <ScrollView style={styles.pantalla} contentContainerStyle={styles.contenido}>
@@ -47,12 +57,13 @@ export function CuentaScreen() {
             <Text style={styles.email} numberOfLines={1}>
               {sesion.email}
             </Text>
+            {esAdmin && <Text style={styles.rol}>Administrador</Text>}
           </View>
         </View>
       )}
 
       <View style={styles.menu}>
-        {OPCIONES.map((opcion, indice) => (
+        {opciones.map((opcion, indice) => (
           <Pressable
             key={opcion.titulo}
             style={[styles.opcion, indice > 0 && styles.opcionConLinea]}
@@ -117,6 +128,12 @@ const styles = StyleSheet.create({
   email: {
     fontSize: 14,
     color: colores.textoSuave,
+  },
+  rol: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: colores.primario,
+    marginTop: 2,
   },
   menu: {
     backgroundColor: colores.superficie,

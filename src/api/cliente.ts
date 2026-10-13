@@ -41,6 +41,16 @@ export class ErrorDeApi extends Error {
   }
 }
 
+// Texto para mostrarle al usuario cuando falla un pedido.
+// Si el backend detalla qué campo está mal, se muestra eso en vez del mensaje general.
+export function mensajeDeError(e: unknown): string {
+  if (e instanceof ErrorDeApi) {
+    const detalles = Object.values(e.errores);
+    return detalles.length > 0 ? detalles.join('\n') : e.message;
+  }
+  return 'Ocurrió un error inesperado';
+}
+
 export async function pedir<T>(ruta: string, opciones: RequestInit = {}): Promise<T> {
   if (!API_URL) {
     throw new ErrorDeApi(0, 'No se pudo detectar el servidor. Configurá EXPO_PUBLIC_API_URL en el archivo .env.local');

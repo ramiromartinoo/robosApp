@@ -59,6 +59,17 @@ function Navegacion() {
         <Stack.Screen name="editar-reporte" options={{ title: 'Editar reporte' }} />
       </Stack.Protected>
 
+      {/* El panel solo existe para administradores. Es una comodidad de la app, no la seguridad:
+          el backend rechaza igual cualquier pedido a /admin de quien no tenga ese rol. */}
+      <Stack.Protected guard={aceptoLosTerminos && sesion.rol === 'ADMIN'}>
+        <Stack.Screen name="admin/index" options={{ title: 'Panel de administrador' }} />
+        <Stack.Screen name="admin/denuncias" options={{ title: 'Denuncias' }} />
+        <Stack.Screen name="admin/sugerencias" options={{ title: 'Sugerencias' }} />
+        <Stack.Screen name="admin/usuarios" options={{ title: 'Usuarios' }} />
+        <Stack.Screen name="admin/reportes" options={{ title: 'Reportes' }} />
+        <Stack.Screen name="admin/estadisticas" options={{ title: 'Estadísticas' }} />
+      </Stack.Protected>
+
       <Stack.Protected guard={!aceptoLosTerminos}>
         <Stack.Screen name="bienvenida" options={{ headerShown: false }} />
       </Stack.Protected>
