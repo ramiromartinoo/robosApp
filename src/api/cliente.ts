@@ -17,7 +17,16 @@ function urlDetectada(): string | undefined {
 // Si EXPO_PUBLIC_API_URL está definida, manda (hace falta con --tunnel o con un backend en otro equipo)
 const API_URL = process.env.EXPO_PUBLIC_API_URL || urlDetectada();
 // PROVISORIO: token fijo de prueba hasta que esté el login con Google
-const TOKEN = process.env.EXPO_PUBLIC_DEV_TOKEN;
+export const TOKEN = process.env.EXPO_PUBLIC_DEV_TOKEN;
+
+// El backend responde 428 a cualquier pedido cuando hay una versión de los términos sin aceptar
+// (por ejemplo, si se publica una nueva mientras se usa la app). La sesión se suscribe para enterarse.
+const TERMINOS_PENDIENTES = 428;
+let avisarTerminosPendientes: (() => void) | null = null;
+
+export function alHaberTerminosPendientes(aviso: (() => void) | null) {
+  avisarTerminosPendientes = aviso;
+}
 
 export class ErrorDeApi extends Error {
   // código HTTP, o 0 si ni siquiera se pudo conectar
@@ -63,6 +72,9 @@ export async function pedir<T>(ruta: string, opciones: RequestInit = {}): Promis
   }
   // el backend siempre responde JSON; los errores vienen como { mensaje, errores }
   const cuerpo = await respuesta.json().catch(() => null);
+  if (respuesta.status === TERMINOS_PENDIENTES) {
+    avisarTerminosPendientes?.();
+  }
   if (!respuesta.ok) {
     throw new ErrorDeApi(respuesta.status, cuerpo?.mensaje ?? 'Ocurrió un error inesperado', cuerpo?.errores ?? {});
   }
