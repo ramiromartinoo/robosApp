@@ -30,6 +30,7 @@ Tu nombre visible se muestra junto a tus publicaciones. Tu correo electrónico y
 
 7. Ubicación
 La aplicación guarda la ubicación que indicás al publicar, pero públicamente solo se muestra una ubicación aproximada, nunca la exacta.
+Si das permiso, la aplicación usa la ubicación de tu teléfono para mostrarte a qué distancia ocurrió cada reporte; ese cálculo se hace en tu teléfono. Si activás el filtro de reportes cercanos, se envía tu ubicación aproximada al servidor únicamente para hacer esa búsqueda.
 
 8. Tus derechos
 Como titular de los datos podés ejercer los derechos de acceso, rectificación, actualización y supresión previstos en la Ley 25.326. Para hacerlo, escribinos a [CORREO DE CONTACTO A DEFINIR]. La Agencia de Acceso a la Información Pública, órgano de control de la Ley 25.326, tiene la atribución de atender las denuncias y reclamos de quienes resulten afectados en sus derechos por incumplimiento de las normas vigentes en materia de protección de datos personales.
