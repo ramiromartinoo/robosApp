@@ -97,7 +97,7 @@ export function PublicarScreen() {
             style={styles.texto}
             value={descripcion}
             onChangeText={setDescripcion}
-            placeholder="Ej: Forzaron la puerta de mi auto y se llevaron la radio."
+            placeholder="Ej: 4 encapuchados vestidos de negro y blanco robaron una Hilux blanca."
             placeholderTextColor={colores.textoSuave}
             multiline
             maxLength={LARGO_MAXIMO}
@@ -105,7 +105,10 @@ export function PublicarScreen() {
           <Text style={styles.contador}>
             {descripcion.length} / {LARGO_MAXIMO}
           </Text>
-          <Text style={styles.ayuda}>No incluyas nombres, patentes ni datos de otras personas.</Text>
+          <Text style={styles.ayuda}>
+            Si pudiste verlos, contá cuántos eran, cómo estaban vestidos y en qué se movían. No incluyas nombres,
+            patentes ni datos de otras personas.
+          </Text>
         </Paso>
 
         <Paso numero={3} titulo="¿Cuándo ocurrió?">
