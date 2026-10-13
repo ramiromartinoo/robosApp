@@ -2,11 +2,15 @@
 # application-local.yaml está en .gitignore: nunca se commitea.
 DB_PASSWORD: "tu_contraseña_de_mysql"
 
+# Solo si tu MySQL no está en el puerto 3307 (el puerto habitual de MySQL es el 3306):
+# DB_URL: "jdbc:mysql://localhost:3306/robosapp_db"
+
 robosapp:
   seguridad:
-    # Habilita los tokens de prueba (dev-cliente, dev-cliente-2, dev-admin). Nunca en producción.
+    # Habilita los tokens de prueba (dev-cliente, dev-cliente-2, dev-cliente-3, dev-admin) y los datos
+    # de ejemplo. Nunca en producción.
     tokens-de-prueba: true
-  firebase:
-    # Ruta absoluta a la clave de servicio de Firebase (el .json que se baja de la consola).
-    # Si se omite, el login con Google queda desactivado y solo funcionan los tokens de prueba.
-    credenciales: "C:/ruta/a/tu-proyecto-firebase-adminsdk-xxxxx.json"
+  # Opcional: login con Google. Descomentar y poner la ruta absoluta a la clave de servicio de Firebase
+  # (el .json que se baja de la consola). Sin esto, solo funcionan los tokens de prueba.
+  # firebase:
+  #   credenciales: "C:/ruta/a/tu-proyecto-firebase-adminsdk-xxxxx.json"
