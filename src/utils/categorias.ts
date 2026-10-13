@@ -14,11 +14,13 @@ type InfoDeCategoria = {
   icono: ComponentProps<typeof Ionicons>['name'];
 };
 
-// En el orden en que se muestran al publicar
+// Cómo se muestra cada categoría del backend.
+// ROBO_AUTO se presenta como "Robo de vehículo" para abarcar también motos y bicicletas:
+// el nombre interno no cambia porque renombrarlo exige migrar la base de datos.
 export const CATEGORIAS: Record<Categoria, InfoDeCategoria> = {
   ROBO_AUTO: {
-    nombre: 'Robo de auto',
-    nombreCorto: 'Robo de auto',
+    nombre: 'Robo de vehículo',
+    nombreCorto: 'Robo de vehículo',
     color: '#1d5fa8',
     fondo: '#dceafb',
     icono: 'car-outline',
@@ -27,12 +29,14 @@ export const CATEGORIAS: Record<Categoria, InfoDeCategoria> = {
   ARREBATO: { nombre: 'Arrebato', nombreCorto: 'Arrebato', color: '#c0392b', fondo: '#fde2e2', icono: 'flash-outline' },
   ROBO_DOMICILIO: {
     nombre: 'Robo a domicilio',
-    nombreCorto: 'Domicilio',
+    nombreCorto: 'Robo a domicilio',
     color: '#b4530a',
     fondo: '#fde9d3',
     icono: 'home-outline',
   },
+  // ya no se ofrece al publicar ni al filtrar; queda para mostrar los reportes viejos que la tienen
   OTRO: { nombre: 'Otro', nombreCorto: 'Otro', color: '#4a5f57', fondo: '#e3ece8', icono: 'ellipsis-horizontal' },
 };
 
-export const LISTA_DE_CATEGORIAS = Object.keys(CATEGORIAS) as Categoria[];
+// Las que se pueden elegir al publicar, editar o filtrar, en el orden en que se muestran
+export const LISTA_DE_CATEGORIAS: Categoria[] = ['ROBO_AUTO', 'HURTO', 'ARREBATO', 'ROBO_DOMICILIO'];

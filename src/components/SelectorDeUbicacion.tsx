@@ -1,7 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import * as Location from 'expo-location';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Keyboard, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import MapView, { Region } from 'react-native-maps';
 
 import { colores } from '../utils/tema';
@@ -12,39 +12,89 @@ export type Coordenada = { latitud: number; longitud: number };
 const CENTRO_MDP: Coordenada = { latitud: -38.0055, longitud: -57.5426 };
 // cuánto mapa se ve: ~0.01 grados son unas 10 cuadras
 const ZOOM = 0.01;
+// al llegar por una dirección se acerca más, para poder afinar el pin
+const ZOOM_DE_DIRECCION = 0.004;
 const ALTO_DEL_PIN = 40;
 
-const aRegion = (coordenada: Coordenada): Region => ({
+// Rectángulo que contiene a Mar del Plata y alrededores: una dirección que cae afuera
+// es casi seguro una calle con el mismo nombre en otra ciudad
+const ZONA_VALIDA = { latMin: -38.2, latMax: -37.85, lngMin: -57.8, lngMax: -57.45 };
+
+const aRegion = (coordenada: Coordenada, zoom = ZOOM): Region => ({
   latitude: coordenada.latitud,
   longitude: coordenada.longitud,
-  latitudeDelta: ZOOM,
-  longitudeDelta: ZOOM,
+  latitudeDelta: zoom,
+  longitudeDelta: zoom,
 });
 
 // Mapa con un pin fijo en el centro: la ubicación elegida es la que queda debajo del pin.
-// Arranca en la posición del GPS y se corrige arrastrando el mapa.
+// Hay tres formas de llegar al lugar, que se pueden combinar: el GPS (arranca ahí),
+// escribir una dirección, o arrastrar el mapa.
 export function SelectorDeUbicacion({ onCambio }: { onCambio: (coordenada: Coordenada) => void }) {
   const mapa = useRef<MapView>(null);
-  const [buscando, setBuscando] = useState(true);
+  const [direccion, setDireccion] = useState('');
+  // qué se está buscando en este momento, para mostrar el cartel sobre el mapa
+  const [buscando, setBuscando] = useState<'gps' | 'direccion' | null>('gps');
   const [aviso, setAviso] = useState<string | null>(null);
 
+  const irA = (coordenada: Coordenada, zoom?: number) => {
+    mapa.current?.animateToRegion(aRegion(coordenada, zoom), 400);
+    onCambio(coordenada);
+  };
+
   const irAMiUbicacion = async () => {
-    setBuscando(true);
+    setBuscando('gps');
     setAviso(null);
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
-        setAviso('Sin permiso de ubicación. Mové el mapa hasta el lugar del hecho.');
+        setAviso('Sin permiso de ubicación. Escribí la dirección o mové el mapa hasta el lugar del hecho.');
         return;
       }
       const posicion = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
-      const coordenada = { latitud: posicion.coords.latitude, longitud: posicion.coords.longitude };
-      mapa.current?.animateToRegion(aRegion(coordenada), 400);
-      onCambio(coordenada);
+      irA({ latitud: posicion.coords.latitude, longitud: posicion.coords.longitude });
     } catch {
-      setAviso('No pudimos obtener tu ubicación. Mové el mapa hasta el lugar del hecho.');
+      setAviso('No pudimos obtener tu ubicación. Escribí la dirección o mové el mapa hasta el lugar del hecho.');
     } finally {
-      setBuscando(false);
+      setBuscando(null);
+    }
+  };
+
+  const buscarDireccion = async () => {
+    const texto = direccion.trim();
+    if (texto.length === 0 || buscando) {
+      return;
+    }
+    Keyboard.dismiss();
+    setBuscando('direccion');
+    setAviso(null);
+    try {
+      // en Android el buscador de direcciones del sistema exige el permiso de ubicación
+      if (Platform.OS === 'android') {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          setAviso('Para buscar direcciones hace falta el permiso de ubicación. Podés mover el mapa a mano.');
+          return;
+        }
+      }
+      // se le agrega la ciudad para que no encuentre la misma calle en otro lado
+      const resultados = await Location.geocodeAsync(`${texto}, Mar del Plata, Buenos Aires, Argentina`);
+      const enLaCiudad = resultados.find(
+        (resultado) =>
+          resultado.latitude >= ZONA_VALIDA.latMin &&
+          resultado.latitude <= ZONA_VALIDA.latMax &&
+          resultado.longitude >= ZONA_VALIDA.lngMin &&
+          resultado.longitude <= ZONA_VALIDA.lngMax,
+      );
+      if (!enLaCiudad) {
+        setAviso('No encontramos esa dirección en Mar del Plata. Probá con calle y altura, o mové el mapa.');
+        return;
+      }
+      irA({ latitud: enLaCiudad.latitude, longitud: enLaCiudad.longitude }, ZOOM_DE_DIRECCION);
+    } catch {
+      setAviso('No pudimos buscar la dirección. Revisá tu conexión o mové el mapa hasta el lugar.');
+    } finally {
+      setBuscando(null);
     }
   };
 
@@ -54,8 +104,32 @@ export function SelectorDeUbicacion({ onCambio }: { onCambio: (coordenada: Coord
     // solo al montar
   }, []);
 
+  const sinDireccion = direccion.trim().length === 0;
+
   return (
     <View style={styles.contenedor}>
+      <View style={styles.buscador}>
+        <TextInput
+          style={styles.direccion}
+          value={direccion}
+          onChangeText={setDireccion}
+          placeholder="Calle y altura. Ej: Av. Colón 2300"
+          placeholderTextColor={colores.textoSuave}
+          returnKeyType="search"
+          onSubmitEditing={buscarDireccion}
+          autoCorrect={false}
+        />
+        <Pressable
+          style={[styles.buscar, (sinDireccion || buscando !== null) && styles.buscarDeshabilitado]}
+          onPress={buscarDireccion}
+          disabled={sinDireccion || buscando !== null}
+          accessibilityRole="button"
+          accessibilityLabel="Buscar dirección">
+          <Ionicons name="search" size={20} color={colores.textoSobreColor} />
+          <Text style={styles.buscarTexto}>Buscar</Text>
+        </Pressable>
+      </View>
+
       <View style={styles.marco}>
         <MapView
           ref={mapa}
@@ -70,14 +144,16 @@ export function SelectorDeUbicacion({ onCambio }: { onCambio: (coordenada: Coord
         {buscando && (
           <View style={styles.buscando} pointerEvents="none">
             <ActivityIndicator color={colores.textoSobreColor} />
-            <Text style={styles.buscandoTexto}>Buscando tu ubicación…</Text>
+            <Text style={styles.buscandoTexto}>
+              {buscando === 'gps' ? 'Buscando tu ubicación…' : 'Buscando la dirección…'}
+            </Text>
           </View>
         )}
       </View>
 
       {aviso && <Text style={styles.aviso}>{aviso}</Text>}
 
-      <Pressable style={styles.boton} onPress={irAMiUbicacion} disabled={buscando}>
+      <Pressable style={styles.boton} onPress={irAMiUbicacion} disabled={buscando !== null}>
         <Ionicons name="locate" size={20} color={colores.primario} />
         <Text style={styles.botonTexto}>Usar mi ubicación actual</Text>
       </Pressable>
@@ -88,6 +164,37 @@ export function SelectorDeUbicacion({ onCambio }: { onCambio: (coordenada: Coord
 const styles = StyleSheet.create({
   contenedor: {
     gap: 10,
+  },
+  buscador: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  direccion: {
+    flex: 1,
+    minHeight: 48,
+    borderWidth: 1,
+    borderColor: colores.borde,
+    backgroundColor: colores.superficie,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    fontSize: 16,
+    color: colores.texto,
+  },
+  buscar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: colores.primario,
+    paddingHorizontal: 14,
+    borderRadius: 12,
+  },
+  buscarDeshabilitado: {
+    backgroundColor: colores.deshabilitado,
+  },
+  buscarTexto: {
+    color: colores.textoSobreColor,
+    fontSize: 16,
+    fontWeight: '700',
   },
   marco: {
     height: 260,
