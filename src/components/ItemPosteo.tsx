@@ -15,6 +15,7 @@ type Props = {
   onVotar: (tipo: TipoConfirmacion) => void;
   onDenunciar: () => void;
   onVerUbicacion: () => void;
+  onVerMisReportes: () => void;
 };
 
 // Resumen de lo que opinan los vecinos sobre el reporte
@@ -45,7 +46,14 @@ function estadoDe(posteo: Posteo): { texto: string; icono: 'checkmark' | 'alert-
 }
 
 // Tarjeta de un reporte en el feed
-export function ItemPosteo({ posteo, miUbicacion, onVotar, onDenunciar, onVerUbicacion }: Props) {
+export function ItemPosteo({
+  posteo,
+  miUbicacion,
+  onVotar,
+  onDenunciar,
+  onVerUbicacion,
+  onVerMisReportes,
+}: Props) {
   const categoria = CATEGORIAS[posteo.categoria];
   const estado = estadoDe(posteo);
   const confirmo = posteo.miVoto === 'CONFIRMA';
@@ -92,8 +100,12 @@ export function ItemPosteo({ posteo, miUbicacion, onVotar, onDenunciar, onVerUbi
       </View>
 
       {posteo.esMio ? (
-        // sobre un reporte propio no se vota ni se denuncia
-        <Text style={styles.propio}>Este reporte lo publicaste vos.</Text>
+        // sobre un reporte propio no se vota ni se denuncia; se administra desde "Mis reportes"
+        <Pressable style={styles.propio} onPress={onVerMisReportes} hitSlop={8}>
+          <Text style={styles.propioTexto}>Es tu reporte · </Text>
+          <Text style={styles.propioEnlace}>Ver mis reportes</Text>
+          <Ionicons name="chevron-forward" size={15} color={colores.primario} />
+        </Pressable>
       ) : (
         <>
           <View style={styles.acciones}>
@@ -210,8 +222,18 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   propio: {
+    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  propioTexto: {
     fontSize: 14,
     color: colores.textoSuave,
+  },
+  propioEnlace: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: colores.primario,
   },
   acciones: {
     flexDirection: 'row',

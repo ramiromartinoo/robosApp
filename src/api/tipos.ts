@@ -27,6 +27,24 @@ export type Posteo = {
   esMio: boolean;
 };
 
+// Un reporte visto por su autor (GET /reportes/mios)
+export type MiReporte = {
+  id: number;
+  descripcion: string;
+  categoria: Categoria;
+  latitud: number;
+  longitud: number;
+  zona: string | null;
+  fechaHoraIncidente: string;
+  fechaHoraPublicacion: string;
+  // EN_REVISION: oculto del feed por acumular denuncias, hasta que un administrador lo revise
+  estado: 'ACTIVO' | 'EN_REVISION';
+  confirmaciones: number;
+  negaciones: number;
+  // 0 si ya no se puede editar
+  segundosParaEditar: number;
+};
+
 // Respuesta de votar (POST) o anular el voto (DELETE) en /reportes/{id}/confirmar
 export type Confirmaciones = {
   posteoId: number;
