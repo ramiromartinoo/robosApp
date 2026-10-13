@@ -116,7 +116,9 @@ export function PublicarScreen() {
         </Paso>
 
         <Paso numero={4} titulo="¿Dónde ocurrió?">
-          <Text style={styles.ayuda}>Mové el mapa hasta que el pin quede sobre el lugar.</Text>
+          <Text style={styles.ayuda}>
+            Escribí la dirección, usá tu ubicación o mové el mapa hasta que el pin quede sobre el lugar.
+          </Text>
           <SelectorDeUbicacion
             key={versionDelMapa}
             onCambio={(coordenada) => {

@@ -11,7 +11,7 @@ type Props = {
   onElegir: (categoria: Categoria) => void;
 };
 
-// Botones grandes con ícono para elegir el tipo de hecho, tres por fila
+// Botones grandes con ícono para elegir el tipo de hecho, dos por fila
 export function GrillaDeCategorias({ elegida, onElegir }: Props) {
   return (
     <View style={styles.grilla}>
@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   opcion: {
-    flexBasis: '30%',
+    flexBasis: '45%',
     flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
