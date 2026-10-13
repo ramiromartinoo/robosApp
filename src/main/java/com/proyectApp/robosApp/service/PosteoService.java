@@ -1,5 +1,6 @@
 package com.proyectApp.robosApp.service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -14,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.proyectApp.robosApp.dto.CrearPosteoRequest;
+import com.proyectApp.robosApp.dto.EditarPosteoRequest;
+import com.proyectApp.robosApp.dto.MiPosteoResponse;
 import com.proyectApp.robosApp.dto.PaginaResponse;
 import com.proyectApp.robosApp.dto.PosteoResponse;
 import com.proyectApp.robosApp.dto.PuntoHeatmapResponse;
@@ -75,15 +78,41 @@ public class PosteoService {
 		return PosteoResponse.desde(posteoRepository.save(posteo), 0, 0, null, true);
 	}
 
+	// Los posteos del usuario actual, incluidos los que están en revisión (los eliminados no)
+	@Transactional(readOnly = true)
+	public PaginaResponse<MiPosteoResponse> mios(int pagina, int tamanio) {
+		Page<Posteo> posteos = posteoRepository.findByUsuarioIdAndEstadoNot(
+				usuarioActualService.obtener().getId(), EstadoPosteo.ELIMINADO,
+				Paginacion.masRecientesPrimero(pagina, tamanio, "fechaHoraPublicacion"));
+		Map<Long, Map<TipoConfirmacion, Long>> conteos = conteosDe(posteos.getContent());
+		return PaginaResponse.desde(posteos.map(posteo -> miPosteo(posteo, conteos)));
+	}
+
 	@Transactional
-	public PosteoResponse editar(Long id, CrearPosteoRequest request) {
+	public MiPosteoResponse editar(Long id, EditarPosteoRequest request) {
 		Posteo posteo = buscarPropio(id);
-		if (posteo.getFechaHoraPublicacion().plusMinutes(minutosParaEditar).isBefore(LocalDateTime.now())) {
+		if (segundosParaEditar(posteo) == 0) {
 			throw new ConflictoException(
 					"Solo se puede editar durante los primeros " + minutosParaEditar + " minutos");
 		}
-		copiarDatos(request, posteo);
-		return conConteos(List.of(posteo)).get(0);
+		posteo.setDescripcion(request.descripcion().trim());
+		posteo.setCategoria(request.categoria());
+		posteo.setFechaHoraIncidente(request.fechaHoraIncidente());
+		return miPosteo(posteo, conteosDe(List.of(posteo)));
+	}
+
+	private MiPosteoResponse miPosteo(Posteo posteo, Map<Long, Map<TipoConfirmacion, Long>> conteos) {
+		Map<TipoConfirmacion, Long> delPosteo = conteos.getOrDefault(posteo.getId(), Map.of());
+		return MiPosteoResponse.desde(posteo,
+				delPosteo.getOrDefault(TipoConfirmacion.CONFIRMA, 0L),
+				delPosteo.getOrDefault(TipoConfirmacion.NIEGA, 0L),
+				segundosParaEditar(posteo));
+	}
+
+	// 0 si ya venció la ventana de edición
+	private long segundosParaEditar(Posteo posteo) {
+		LocalDateTime limite = posteo.getFechaHoraPublicacion().plusMinutes(minutosParaEditar);
+		return Math.max(0, Duration.between(LocalDateTime.now(), limite).getSeconds());
 	}
 
 	// Borrado lógico: el posteo deja de verse pero queda en la base
@@ -158,11 +187,7 @@ public class PosteoService {
 		Long usuarioId = usuarioActualService.obtener().getId();
 		List<Long> ids = posteos.stream().map(Posteo::getId).toList();
 
-		Map<Long, Map<TipoConfirmacion, Long>> conteos = new HashMap<>();
-		for (ConteoConfirmaciones conteo : confirmacionRepository.contarPorPosteo(ids)) {
-			conteos.computeIfAbsent(conteo.posteoId(), id -> new EnumMap<>(TipoConfirmacion.class))
-					.put(conteo.tipo(), conteo.cantidad());
-		}
+		Map<Long, Map<TipoConfirmacion, Long>> conteos = conteosDe(posteos);
 		Map<Long, TipoConfirmacion> misVotos = new HashMap<>();
 		confirmacionRepository.votosDelUsuario(usuarioId, ids)
 				.forEach(voto -> misVotos.put(voto.getPosteo().getId(), voto.getTipo()));
@@ -175,6 +200,20 @@ public class PosteoService {
 					misVotos.get(posteo.getId()),
 					posteo.getUsuario().getId().equals(usuarioId));
 		}).toList();
+	}
+
+	// Confirmaciones y negaciones de cada posteo de la lista, con una sola consulta
+	private Map<Long, Map<TipoConfirmacion, Long>> conteosDe(List<Posteo> posteos) {
+		Map<Long, Map<TipoConfirmacion, Long>> conteos = new HashMap<>();
+		if (posteos.isEmpty()) {
+			return conteos;
+		}
+		List<Long> ids = posteos.stream().map(Posteo::getId).toList();
+		for (ConteoConfirmaciones conteo : confirmacionRepository.contarPorPosteo(ids)) {
+			conteos.computeIfAbsent(conteo.posteoId(), id -> new EnumMap<>(TipoConfirmacion.class))
+					.put(conteo.tipo(), conteo.cantidad());
+		}
+		return conteos;
 	}
 
 	// El período se puede pedir en horas o en días; si vienen los dos, mandan las horas

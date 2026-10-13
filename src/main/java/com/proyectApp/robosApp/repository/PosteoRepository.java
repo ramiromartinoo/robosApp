@@ -56,6 +56,9 @@ public interface PosteoRepository extends JpaRepository<Posteo, Long> {
 			@Param("lngMax") double lngMax,
 			Pageable pageable);
 
+	// "Mis reportes": todos los del usuario salvo los que están en el estado indicado
+	Page<Posteo> findByUsuarioIdAndEstadoNot(Long usuarioId, EstadoPosteo estado, Pageable pageable);
+
 	// Para el límite de publicaciones por hora
 	long countByUsuarioIdAndFechaHoraPublicacionAfter(Long usuarioId, LocalDateTime desde);
 
