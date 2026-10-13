@@ -27,14 +27,14 @@ export default function TabLayout() {
         options={{
           title: 'Inicio',
           headerTitle: 'Alerta Vecinal',
-          // acceso a los reportes propios, arriba a la derecha
+          // acceso al menú personal (mis reportes, sugerencias), arriba a la derecha
           headerRight: () => (
             <Pressable
-              style={styles.misReportes}
-              onPress={() => router.push('/mis-reportes')}
+              style={styles.cuenta}
+              onPress={() => router.push('/cuenta')}
               hitSlop={8}
               accessibilityRole="button"
-              accessibilityLabel="Mis reportes">
+              accessibilityLabel="Mi cuenta">
               <Ionicons name="person-circle-outline" size={30} color={colores.textoSobreColor} />
             </Pressable>
           ),
@@ -78,7 +78,7 @@ export default function TabLayout() {
 }
 
 const styles = StyleSheet.create({
-  misReportes: {
+  cuenta: {
     marginRight: 14,
   },
   // ocupa todo el ancho de su pestaña, para que sea fácil de tocar

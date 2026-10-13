@@ -53,6 +53,8 @@ function Navegacion() {
       }}>
       <Stack.Protected guard={aceptoLosTerminos}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="cuenta" options={{ title: 'Mi cuenta' }} />
+        <Stack.Screen name="sugerencias" options={{ title: 'Sugerencias' }} />
         <Stack.Screen name="mis-reportes" options={{ title: 'Mis reportes' }} />
         <Stack.Screen name="editar-reporte" options={{ title: 'Editar reporte' }} />
       </Stack.Protected>
