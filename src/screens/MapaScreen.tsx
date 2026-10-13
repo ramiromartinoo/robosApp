@@ -18,16 +18,23 @@ const PERIODOS = [
 // Vista inicial: toda la ciudad
 const MAR_DEL_PLATA = { latitude: -38.0055, longitude: -57.5426, latitudeDelta: 0.12, longitudeDelta: 0.12 };
 
-// De "pocos reportes" (ámbar) a "muchos" (rojo). Cada zona se dibuja como un círculo:
-// cuanto más reportes tiene respecto de la zona más cargada, más grande, más rojo y más opaco.
-const POCOS = [245, 158, 11];
-const MUCHOS = [225, 29, 72];
-const RADIO_MINIMO_M = 160;
-const RADIO_EXTRA_M = 140;
+// De "pocos reportes" (amarillo) a "muchos" (rojo). Cada zona se dibuja como una mancha de calor:
+// cuanto más reportes tiene respecto de la zona más cargada, más grande, más roja y más intensa.
+const POCOS = [250, 204, 21];
+const MUCHOS = [220, 38, 38];
+const RADIO_MINIMO_M = 150;
+const RADIO_EXTRA_M = 130;
+// Cada mancha son tres círculos concéntricos sin borde, de más grande y tenue a más chico y fuerte:
+// superpuestos dan un centro intenso que se va apagando hacia afuera.
+const CAPAS = [
+  { escala: 2.1, opacidad: 0.14 },
+  { escala: 1.45, opacidad: 0.22 },
+  { escala: 0.85, opacidad: 0.38 },
+];
 
-function colorDeZona(intensidad: number): string {
+function colorDeZona(intensidad: number, opacidad = 0.75): string {
   const [r, g, b] = POCOS.map((canal, i) => Math.round(canal + (MUCHOS[i] - canal) * intensidad));
-  return `rgba(${r}, ${g}, ${b}, ${0.35 + 0.3 * intensidad})`;
+  return `rgba(${r}, ${g}, ${b}, ${opacidad})`;
 }
 
 export function MapaScreen() {
@@ -71,17 +78,24 @@ export function MapaScreen() {
   return (
     <View style={styles.pantalla}>
       <MapView style={styles.mapa} initialRegion={MAR_DEL_PLATA}>
-        {puntos.map((punto) => {
+        {puntos.flatMap((punto) => {
           const intensidad = punto.peso / maximo;
-          return (
-            <Circle
-              key={`${punto.latitud},${punto.longitud}`}
-              center={{ latitude: punto.latitud, longitude: punto.longitud }}
-              radius={RADIO_MINIMO_M + RADIO_EXTRA_M * intensidad}
-              fillColor={colorDeZona(intensidad)}
-              strokeWidth={0}
-            />
-          );
+          const radio = RADIO_MINIMO_M + RADIO_EXTRA_M * intensidad;
+          return CAPAS.map((capa) => {
+            const color = colorDeZona(intensidad, capa.opacidad);
+            return (
+              <Circle
+                key={`${punto.latitud},${punto.longitud},${capa.escala}`}
+                center={{ latitude: punto.latitud, longitude: punto.longitud }}
+                radius={radio * capa.escala}
+                fillColor={color}
+                // el borde va del mismo color que el relleno: con ancho 0 el mapa de iPhone
+                // dibuja igual una línea negra alrededor
+                strokeColor={color}
+                strokeWidth={1}
+              />
+            );
+          });
         })}
       </MapView>
 
