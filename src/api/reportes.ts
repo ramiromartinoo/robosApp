@@ -22,8 +22,22 @@ export type NuevoReporte = {
   fechaHoraIncidente: string;
 };
 
-export function obtenerFeed(pagina: number): Promise<Pagina<Posteo>> {
-  return pedir<Pagina<Posteo>>(`/reportes?page=${pagina}&size=${TAMANIO_PAGINA}`);
+export type FiltrosDeReportes = {
+  // null = todos los tipos de hecho
+  categoria: Categoria | null;
+  // null = toda la ciudad
+  cerca: { latitud: number; longitud: number; radioKm: number } | null;
+};
+
+export function obtenerFeed(pagina: number, filtros: FiltrosDeReportes): Promise<Pagina<Posteo>> {
+  let ruta = `/reportes?page=${pagina}&size=${TAMANIO_PAGINA}`;
+  if (filtros.categoria) {
+    ruta += `&categoria=${filtros.categoria}`;
+  }
+  if (filtros.cerca) {
+    ruta += `&lat=${filtros.cerca.latitud}&lng=${filtros.cerca.longitud}&radio=${filtros.cerca.radioKm}`;
+  }
+  return pedir<Pagina<Posteo>>(ruta);
 }
 
 // Reportes de las últimas `horas` horas, agrupados por zona
