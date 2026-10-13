@@ -1,6 +1,6 @@
 # Radar Vecinal — backend
 
-API del proyecto de reportes de robos e incidentes de inseguridad en Mar del Plata. Guarda los reportes, los usuarios y la moderación, y le responde a la app móvil, que vive en otro repositorio: [robosapp-movil](https://github.com/ramiromartinoo/robosapp-movil).
+API del proyecto de reportes de robos e incidentes de inseguridad en Mar del Plata. Guarda los reportes, los usuarios y la moderación, y le responde a la app móvil, que está en la carpeta [`robosApp-movil`](../robosApp-movil/README.md) de este mismo repositorio.
 
 **Estado:** en desarrollo. Funciona completo en una PC con usuarios de prueba; todavía no está publicado en ningún servidor.
 
