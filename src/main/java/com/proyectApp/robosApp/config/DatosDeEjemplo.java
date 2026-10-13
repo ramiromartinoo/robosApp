@@ -81,8 +81,8 @@ public class DatosDeEjemplo {
 			new Ejemplo(3, Categoria.ARREBATO,
 					"Un motochorro de casco blanco y campera roja le arrebató el celular a una chica que caminaba hablando por teléfono.",
 					"Av. Luro al 3300, Centro", -38.0001, -57.5552, 2900, 5, 0),
-			new Ejemplo(-1, Categoria.OTRO,
-					"Hay dos personas probando las puertas de los autos estacionados en la cuadra. Uno de buzo naranja y otro de campera negra.",
+			new Ejemplo(-1, Categoria.ROBO_AUTO,
+					"Dos personas rompieron el candado y se llevaron una bicicleta que estaba atada a una reja. Uno de buzo naranja y otro de campera negra.",
 					"Av. Edison al 800, Punta Mogotes", -38.0655, -57.5501, 3600, 2, 1),
 			new Ejemplo(4, Categoria.ROBO_AUTO,
 					"Robaron una moto roja que estaba atada a un poste. Los vieron cargarla en una camioneta blanca con caja.",
@@ -99,8 +99,8 @@ public class DatosDeEjemplo {
 			new Ejemplo(2, Categoria.HURTO,
 					"Se llevaron dos bicicletas del palier de un edificio. La puerta de entrada había quedado mal cerrada.",
 					"Bolívar al 3400, Centro", -38.0031, -57.5568, 8600, 0, 0),
-			new Ejemplo(3, Categoria.OTRO,
-					"Están ofreciendo de casa en casa una supuesta revisión del gas y piden entrar. No tienen identificación de ninguna empresa.",
+			new Ejemplo(3, Categoria.ROBO_DOMICILIO,
+					"Dos hombres con chaleco entraron a una casa diciendo que venían a revisar el gas y se llevaron dinero y un celular. No tenían identificación de ninguna empresa.",
 					"Av. Fortunato de la Plaza al 4500, Peralta Ramos Oeste", -38.0352, -57.5842, 9500, 3, 2));
 
 	// Qué reporte de la lista recibe denuncias de ejemplo, para que el panel admin tenga algo que resolver
