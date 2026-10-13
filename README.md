@@ -1,4 +1,4 @@
-# Alerta Vecinal — backend
+# Radar Vecinal — backend
 
 API del proyecto de reportes de robos e incidentes de inseguridad en Mar del Plata. Guarda los reportes, los usuarios y la moderación, y le responde a la app móvil, que vive en otro repositorio: [robosapp-movil](https://github.com/ramiromartinoo/robosapp-movil).
 
