@@ -1,4 +1,4 @@
-# Alerta Vecinal — app móvil
+# Radar Vecinal — app móvil
 
 App para Android y iPhone donde los vecinos de Mar del Plata reportan robos e incidentes de inseguridad y ven lo que pasa cerca. Necesita el backend, que vive en otro repositorio: [robosapp-backend](https://github.com/ramiromartinoo/robosapp-backend).
 
@@ -93,7 +93,17 @@ Verifica los tipos. No hay pruebas automáticas todavía.
 - **Notificaciones push:** dependen de lo mismo.
 - **Mapas fuera de Expo Go:** al compilar la app para Android va a hacer falta una clave de Google Maps.
 - Las listas de Mi cuenta y del panel traen hasta 50 elementos, sin paginado.
-- El nombre y el ícono de la app son todavía los genéricos.
+- El ícono y la pantalla de carga propios se ven completos recién en una versión compilada: Expo Go muestra su propia pantalla de carga.
+
+## Ícono y pantalla de carga
+
+Las imágenes de `assets/` se generan con un script, sin instalar nada:
+
+```powershell
+node scripts/generar-iconos.js
+```
+
+Para cambiar el color o la forma se edita ese archivo y se vuelve a correr. La configuración que las usa está en `app.json`.
 
 ## Ramas
 
