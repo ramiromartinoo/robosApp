@@ -1,0 +1,12 @@
+# Copiar este archivo como application-local.yaml y completar con los datos propios.
+# application-local.yaml está en .gitignore: nunca se commitea.
+DB_PASSWORD: "tu_contraseña_de_mysql"
+
+robosapp:
+  seguridad:
+    # Habilita los tokens de prueba (dev-cliente, dev-cliente-2, dev-admin). Nunca en producción.
+    tokens-de-prueba: true
+  firebase:
+    # Ruta absoluta a la clave de servicio de Firebase (el .json que se baja de la consola).
+    # Si se omite, el login con Google queda desactivado y solo funcionan los tokens de prueba.
+    credenciales: "C:/ruta/a/tu-proyecto-firebase-adminsdk-xxxxx.json"

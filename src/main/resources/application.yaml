@@ -1,0 +1,25 @@
+spring:
+  config:
+    # Secretos locales (no se commitea). Ver application-local.yaml.example
+    import: optional:classpath:application-local.yaml
+  datasource:
+    url: jdbc:mysql://localhost:3307/robosapp_db
+    username: root
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update   # solo desarrollo; a futuro migraciones con Flyway
+    open-in-view: false
+
+robosapp:
+  seguridad:
+    # true SOLO en desarrollo (se activa en application-local.yaml): habilita los tokens y usuarios de prueba
+    tokens-de-prueba: false
+  posteos:
+    # límite de publicaciones por usuario
+    maximo-por-hora: 5
+    # ventana para editar un posteo propio después de publicarlo
+    minutos-para-editar: 10
+  denuncias:
+    # con esta cantidad de denuncias pendientes el posteo pasa a EN_REVISION y sale del feed
+    umbral-auto-ocultamiento: 5
