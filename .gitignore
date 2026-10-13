@@ -1,0 +1,9 @@
+# Configuración de IntelliJ (cada uno tiene la suya)
+.idea/
+*.iml
+
+# Carpeta de compilación que a veces se genera en la raíz
+/target/
+
+# Cada proyecto tiene además su propio .gitignore, que deja afuera
+# las contraseñas, las claves y los archivos generados.
