@@ -3,6 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Image,
   NativeScrollEvent,
   NativeSyntheticEvent,
   Pressable,
@@ -93,7 +94,8 @@ export function BienvenidaScreen() {
       <StatusBar style="dark" />
       <View style={styles.tarjeta}>
         <View style={styles.logo}>
-          <Ionicons name="shield-checkmark-outline" size={26} color={colores.textoSobreColor} />
+          {/* el mismo radar del ícono de la app (blanco sobre transparente) */}
+          <Image source={require('../../assets/splash-icon.png')} style={styles.logoImagen} />
         </View>
         <Text style={styles.titulo}>Cuidémonos entre vecinos</Text>
         <Text style={styles.bajada}>
@@ -199,6 +201,10 @@ const styles = StyleSheet.create({
     backgroundColor: colores.primario,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  logoImagen: {
+    width: 34,
+    height: 34,
   },
   titulo: {
     fontSize: 30,

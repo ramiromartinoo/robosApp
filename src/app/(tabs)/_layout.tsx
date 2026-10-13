@@ -26,7 +26,7 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Inicio',
-          headerTitle: 'Alerta Vecinal',
+          headerTitle: 'Radar Vecinal',
           // acceso al menú personal (mis reportes, sugerencias), arriba a la derecha
           headerRight: () => (
             <Pressable
