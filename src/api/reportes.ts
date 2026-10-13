@@ -2,6 +2,7 @@ import { pedir } from './cliente';
 import {
   Categoria,
   Confirmaciones,
+  MiReporte,
   MotivoDenuncia,
   Pagina,
   Posteo,
@@ -47,6 +48,27 @@ export function obtenerHeatmap(horas: number): Promise<PuntoHeatmap[]> {
 
 export function crearReporte(reporte: NuevoReporte): Promise<Posteo> {
   return pedir<Posteo>('/reportes', { method: 'POST', body: JSON.stringify(reporte) });
+}
+
+// Los reportes del usuario, del más nuevo al más viejo. Se pide una sola página grande:
+// es raro que una persona tenga más de 50 reportes propios.
+export function obtenerMisReportes(): Promise<Pagina<MiReporte>> {
+  return pedir<Pagina<MiReporte>>('/reportes/mios?page=0&size=50');
+}
+
+export type CambiosDeReporte = {
+  descripcion: string;
+  categoria: Categoria;
+  fechaHoraIncidente: string;
+};
+
+// Solo funciona durante los primeros minutos después de publicar. La ubicación no se edita.
+export function editarReporte(id: number, cambios: CambiosDeReporte): Promise<MiReporte> {
+  return pedir<MiReporte>(`/reportes/${id}`, { method: 'PUT', body: JSON.stringify(cambios) });
+}
+
+export function eliminarReporte(id: number): Promise<void> {
+  return pedir<void>(`/reportes/${id}`, { method: 'DELETE' });
 }
 
 // Votar de nuevo cambia el voto anterior

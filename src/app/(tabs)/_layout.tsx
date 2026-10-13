@@ -1,11 +1,13 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Tabs } from 'expo-router';
+import { Tabs, useRouter } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { colores } from '../../utils/tema';
 
 // Barra de pestañas de abajo: Inicio, Reportar (botón destacado en el centro) y Mapa
 export default function TabLayout() {
+  const router = useRouter();
+
   return (
     <Tabs
       screenOptions={{
@@ -25,6 +27,17 @@ export default function TabLayout() {
         options={{
           title: 'Inicio',
           headerTitle: 'Alerta Vecinal',
+          // acceso a los reportes propios, arriba a la derecha
+          headerRight: () => (
+            <Pressable
+              style={styles.misReportes}
+              onPress={() => router.push('/mis-reportes')}
+              hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel="Mis reportes">
+              <Ionicons name="person-circle-outline" size={30} color={colores.textoSobreColor} />
+            </Pressable>
+          ),
           tabBarIcon: ({ color, focused }) => (
             <Ionicons size={25} name={focused ? 'home' : 'home-outline'} color={color} />
           ),
@@ -65,6 +78,9 @@ export default function TabLayout() {
 }
 
 const styles = StyleSheet.create({
+  misReportes: {
+    marginRight: 14,
+  },
   // ocupa todo el ancho de su pestaña, para que sea fácil de tocar
   reportarZona: {
     flex: 1,

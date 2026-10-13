@@ -1,4 +1,4 @@
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -17,6 +17,7 @@ const mensajeDe = (e: unknown) => (e instanceof ErrorDeApi ? e.message : 'Ocurri
 const redondear = (coordenada: number) => Math.round(coordenada * 1000) / 1000;
 
 export function FeedScreen() {
+  const router = useRouter();
   const [posteos, setPosteos] = useState<Posteo[]>([]);
   const [cargando, setCargando] = useState(true);
   const [refrescando, setRefrescando] = useState(false);
@@ -179,6 +180,7 @@ export function FeedScreen() {
             onVotar={(tipo) => alVotar(item, tipo)}
             onDenunciar={() => setADenunciar(item.id)}
             onVerUbicacion={() => setViendoUbicacion(item)}
+            onVerMisReportes={() => router.push('/mis-reportes')}
           />
         )}
         contentContainerStyle={styles.lista}

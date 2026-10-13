@@ -1,4 +1,3 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
 import { ReactNode, useRef, useState } from 'react';
 import {
@@ -16,9 +15,9 @@ import {
 import { ErrorDeApi } from '../api/cliente';
 import { crearReporte } from '../api/reportes';
 import { Categoria } from '../api/tipos';
+import { GrillaDeCategorias } from '../components/GrillaDeCategorias';
 import { SelectorDeFecha } from '../components/SelectorDeFecha';
 import { Coordenada, SelectorDeUbicacion } from '../components/SelectorDeUbicacion';
-import { CATEGORIAS, LISTA_DE_CATEGORIAS } from '../utils/categorias';
 import { aFechaDelBackend } from '../utils/fechas';
 import { colores } from '../utils/tema';
 import { obtenerZona } from '../utils/zona';
@@ -90,23 +89,7 @@ export function PublicarScreen() {
     <KeyboardAvoidingView style={styles.pantalla} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={styles.contenido} keyboardShouldPersistTaps="handled">
         <Paso numero={1} titulo="¿Qué pasó?">
-          <View style={styles.grilla}>
-            {LISTA_DE_CATEGORIAS.map((opcion) => {
-              const elegida = opcion === categoria;
-              const info = CATEGORIAS[opcion];
-              const color = elegida ? colores.textoSobreColor : colores.texto;
-              return (
-                <Pressable
-                  key={opcion}
-                  onPress={() => setCategoria(opcion)}
-                  accessibilityState={{ selected: elegida }}
-                  style={[styles.opcion, elegida && styles.opcionElegida]}>
-                  <Ionicons name={info.icono} size={24} color={color} />
-                  <Text style={[styles.opcionTexto, { color }]}>{info.nombreCorto}</Text>
-                </Pressable>
-              );
-            })}
-          </View>
+          <GrillaDeCategorias elegida={categoria} onElegir={setCategoria} />
         </Paso>
 
         <Paso numero={2} titulo="Contá brevemente qué pasó">
@@ -216,34 +199,6 @@ const styles = StyleSheet.create({
   ayuda: {
     fontSize: 14,
     color: colores.textoSuave,
-  },
-  // tres botones por fila
-  grilla: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-  },
-  opcion: {
-    flexBasis: '30%',
-    flexGrow: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    minHeight: 82,
-    paddingHorizontal: 6,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: colores.borde,
-    backgroundColor: colores.superficie,
-  },
-  opcionElegida: {
-    backgroundColor: colores.primario,
-    borderColor: colores.primario,
-  },
-  opcionTexto: {
-    fontSize: 14,
-    fontWeight: '700',
-    textAlign: 'center',
   },
   texto: {
     minHeight: 110,
