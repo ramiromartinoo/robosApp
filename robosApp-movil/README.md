@@ -1,6 +1,6 @@
 # Radar Vecinal — app móvil
 
-App para Android y iPhone donde los vecinos de Mar del Plata reportan robos e incidentes de inseguridad y ven lo que pasa cerca. Necesita el backend, que vive en otro repositorio: [robosapp-backend](https://github.com/ramiromartinoo/robosapp-backend).
+App para Android y iPhone donde los vecinos de Mar del Plata reportan robos e incidentes de inseguridad y ven lo que pasa cerca. Necesita el backend, que está en la carpeta [`robosApp`](../robosApp/README.md) de este mismo repositorio.
 
 **Estado:** en desarrollo. Se prueba en el celular con Expo Go y entra con usuarios de prueba; el login con Google todavía no está.
 
@@ -16,7 +16,7 @@ App para Android y iPhone donde los vecinos de Mar del Plata reportan robos e in
 
 - [Node.js](https://nodejs.org) (versión LTS) en la PC.
 - La app **Expo Go** en el celular.
-- El backend corriendo en la misma PC (ver su README).
+- El backend corriendo en la misma PC (ver [su README](../robosApp/README.md)).
 - El celular y la PC en el mismo wifi.
 
 ### Instalar
