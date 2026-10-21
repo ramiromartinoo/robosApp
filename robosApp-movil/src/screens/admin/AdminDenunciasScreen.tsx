@@ -4,11 +4,19 @@ import { Alert, StyleSheet, Text, View } from 'react-native';
 import { DenunciasDePosteo, obtenerDenunciasPendientes, Resolucion, resolverDenuncias } from '../../api/admin';
 import { mensajeDeError } from '../../api/cliente';
 import { MotivoDenuncia } from '../../api/tipos';
-import { Boton, DistanciaAlLugar, EstadoDeLista, Etiqueta, PantallaConLista, Tarjeta } from '../../components/admin/Comunes';
+import {
+  Boton,
+  BotonCargarMas,
+  DistanciaAlLugar,
+  EstadoDeLista,
+  Etiqueta,
+  PantallaConLista,
+  Tarjeta,
+} from '../../components/admin/Comunes';
 import { CATEGORIAS } from '../../utils/categorias';
 import { haceCuanto } from '../../utils/fechas';
 import { colores } from '../../utils/tema';
-import { useCarga } from '../../utils/useCarga';
+import { usePaginado } from '../../utils/usePaginado';
 
 const MOTIVOS: Record<MotivoDenuncia, string> = {
   INFORMACION_FALSA: 'Información falsa',
@@ -39,10 +47,20 @@ const CONFIRMACIONES: Record<Resolucion, { titulo: string; detalle: string; boto
 
 // Reportes con denuncias pendientes, primero los más denunciados
 export function AdminDenunciasScreen() {
-  const { datos, setDatos, cargando, error, recargar, refrescando, refrescar } = useCarga(obtenerDenunciasPendientes);
+  const {
+    items: lista,
+    setItems,
+    cargando,
+    cargandoMas,
+    error,
+    hayMas,
+    cargarMas,
+    recargar,
+    refrescando,
+    refrescar,
+  } = usePaginado(obtenerDenunciasPendientes);
   // id del posteo que se está resolviendo, para deshabilitar sus botones
   const [resolviendo, setResolviendo] = useState<number | null>(null);
-  const lista = datos?.contenido ?? [];
 
   const resolver = (item: DenunciasDePosteo, resolucion: Resolucion) => {
     const confirmacion = CONFIRMACIONES[resolucion];
@@ -56,13 +74,7 @@ export function AdminDenunciasScreen() {
           try {
             await resolverDenuncias(item.posteo.id, resolucion);
             // ya no tiene denuncias pendientes: sale de la lista
-            setDatos(
-              (actual) =>
-                actual && {
-                  ...actual,
-                  contenido: actual.contenido.filter((otro) => otro.posteo.id !== item.posteo.id),
-                },
-            );
+            setItems((actuales) => actuales.filter((otro) => otro.posteo.id !== item.posteo.id));
           } catch (e) {
             Alert.alert('No se pudo resolver', mensajeDeError(e));
           } finally {
@@ -140,6 +152,7 @@ export function AdminDenunciasScreen() {
             </Tarjeta>
           );
         })}
+      {!error && <BotonCargarMas hayMas={hayMas} cargando={cargandoMas} onPress={cargarMas} />}
     </PantallaConLista>
   );
 }

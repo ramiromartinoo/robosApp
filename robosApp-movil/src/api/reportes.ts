@@ -52,10 +52,9 @@ export function crearReporte(reporte: NuevoReporte): Promise<Posteo> {
   return pedir<Posteo>('/reportes', { method: 'POST', body: JSON.stringify(reporte) });
 }
 
-// Los reportes del usuario, del más nuevo al más viejo. Se pide una sola página grande:
-// es raro que una persona tenga más de 50 reportes propios.
-export function obtenerMisReportes(): Promise<Pagina<MiReporte>> {
-  return pedir<Pagina<MiReporte>>('/reportes/mios?page=0&size=50');
+// Los reportes del usuario, del más nuevo al más viejo, de a 20
+export function obtenerMisReportes(pagina = 0): Promise<Pagina<MiReporte>> {
+  return pedir<Pagina<MiReporte>>(`/reportes/mios?page=${pagina}&size=${TAMANIO_PAGINA}`);
 }
 
 export type CambiosDeReporte = {

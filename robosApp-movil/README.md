@@ -92,7 +92,6 @@ Verifica los tipos. No hay pruebas automáticas todavía.
 - **Login con Google:** requiere una versión compilada de la app (no funciona en Expo Go) y, en iPhone, una cuenta de Apple Developer. Mientras tanto se entra con los tokens de prueba.
 - **Notificaciones push:** dependen de lo mismo.
 - **Mapas fuera de Expo Go:** al compilar la app para Android va a hacer falta una clave de Google Maps.
-- Las listas de Mi cuenta y del panel traen hasta 50 elementos, sin paginado.
 - El ícono y la pantalla de carga propios se ven completos recién en una versión compilada: Expo Go muestra su propia pantalla de carga.
 
 ## Ícono y pantalla de carga

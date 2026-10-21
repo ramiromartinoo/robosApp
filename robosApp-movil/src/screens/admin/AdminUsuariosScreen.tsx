@@ -12,10 +12,10 @@ import {
   UsuarioAdmin,
 } from '../../api/admin';
 import { mensajeDeError } from '../../api/cliente';
-import { Boton, EstadoDeLista, Etiqueta, PantallaConLista, Tarjeta } from '../../components/admin/Comunes';
+import { Boton, BotonCargarMas, EstadoDeLista, Etiqueta, PantallaConLista, Tarjeta } from '../../components/admin/Comunes';
 import { haceCuanto } from '../../utils/fechas';
 import { colores } from '../../utils/tema';
-import { useCarga } from '../../utils/useCarga';
+import { usePaginado } from '../../utils/usePaginado';
 
 const ESTADOS: Record<EstadoDeUsuario, { nombre: string; color: string; fondo: string }> = {
   ACTIVO: { nombre: 'Activo', color: colores.confirmar, fondo: colores.confirmarSuave },
@@ -44,10 +44,10 @@ const CAMBIOS: Record<EstadoDeUsuario, { titulo: string; detalle: string; boton:
 
 export function AdminUsuariosScreen() {
   const router = useRouter();
-  const { datos, setDatos, cargando, error, recargar, refrescando, refrescar } = useCarga(obtenerUsuarios);
+  const { items: lista, setItems, cargando, cargandoMas, error, hayMas, cargarMas, recargar, refrescando, refrescar } =
+    usePaginado(obtenerUsuarios);
   // id del usuario sobre el que se está aplicando una acción
   const [ocupado, setOcupado] = useState<number | null>(null);
-  const lista = datos?.contenido ?? [];
 
   const ejecutar = async (usuarioId: number, accion: () => Promise<void>) => {
     setOcupado(usuarioId);
@@ -70,13 +70,7 @@ export function AdminUsuariosScreen() {
         onPress: () =>
           ejecutar(usuario.id, async () => {
             const actualizado = await cambiarEstadoDeUsuario(usuario.id, estado);
-            setDatos(
-              (actual) =>
-                actual && {
-                  ...actual,
-                  contenido: actual.contenido.map((otro) => (otro.id === usuario.id ? actualizado : otro)),
-                },
-            );
+            setItems((actuales) => actuales.map((otro) => (otro.id === usuario.id ? actualizado : otro)));
           }),
       },
     ]);
@@ -95,10 +89,7 @@ export function AdminUsuariosScreen() {
           onPress: () =>
             ejecutar(usuario.id, async () => {
               await eliminarUsuario(usuario.id);
-              setDatos(
-                (actual) =>
-                  actual && { ...actual, contenido: actual.contenido.filter((otro) => otro.id !== usuario.id) },
-              );
+              setItems((actuales) => actuales.filter((otro) => otro.id !== usuario.id));
             }),
         },
       ],
@@ -205,6 +196,7 @@ export function AdminUsuariosScreen() {
             </Tarjeta>
           );
         })}
+      {!error && <BotonCargarMas hayMas={hayMas} cargando={cargandoMas} onPress={cargarMas} />}
     </PantallaConLista>
   );
 }

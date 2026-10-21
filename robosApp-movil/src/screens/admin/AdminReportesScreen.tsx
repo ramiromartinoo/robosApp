@@ -6,6 +6,7 @@ import { eliminarReporteComoAdmin, EstadoDePosteo, obtenerReportes, PosteoAdmin 
 import { mensajeDeError } from '../../api/cliente';
 import {
   Boton,
+  BotonCargarMas,
   DistanciaAlLugar,
   EstadoDeLista,
   Etiqueta,
@@ -16,7 +17,7 @@ import {
 import { CATEGORIAS } from '../../utils/categorias';
 import { haceCuanto } from '../../utils/fechas';
 import { colores } from '../../utils/tema';
-import { useCarga } from '../../utils/useCarga';
+import { usePaginado } from '../../utils/usePaginado';
 
 type Filtro = EstadoDePosteo | 'TODOS';
 
@@ -39,12 +40,22 @@ export function AdminReportesScreen() {
   const usuarioId = parametros.usuarioId ? Number(parametros.usuarioId) : null;
   const [filtro, setFiltro] = useState<Filtro>('TODOS');
   const pedir = useCallback(
-    () => obtenerReportes({ estado: filtro === 'TODOS' ? null : filtro, usuarioId }),
+    (pagina: number) => obtenerReportes({ estado: filtro === 'TODOS' ? null : filtro, usuarioId }, pagina),
     [filtro, usuarioId],
   );
-  const { datos, setDatos, cargando, error, recargar, refrescando, refrescar } = useCarga(pedir);
+  const {
+    items: lista,
+    setItems,
+    cargando,
+    cargandoMas,
+    error,
+    hayMas,
+    cargarMas,
+    recargar,
+    refrescando,
+    refrescar,
+  } = usePaginado(pedir);
   const [eliminando, setEliminando] = useState<number | null>(null);
-  const lista = datos?.contenido ?? [];
 
   const eliminar = (posteo: PosteoAdmin) => {
     Alert.alert('¿Eliminar este reporte?', 'Deja de verse para todos. Si tenía denuncias pendientes, quedan resueltas.', [
@@ -56,18 +67,11 @@ export function AdminReportesScreen() {
           setEliminando(posteo.id);
           try {
             await eliminarReporteComoAdmin(posteo.id);
-            setDatos(
-              (actual) =>
-                actual && {
-                  ...actual,
-                  contenido:
-                    filtro === 'TODOS' || filtro === 'ELIMINADO'
-                      ? actual.contenido.map((otro) =>
-                          otro.id === posteo.id ? { ...otro, estado: 'ELIMINADO' as const } : otro,
-                        )
-                      : // con un filtro de estado activo, el eliminado ya no corresponde a esta vista
-                        actual.contenido.filter((otro) => otro.id !== posteo.id),
-                },
+            setItems((actuales) =>
+              filtro === 'TODOS' || filtro === 'ELIMINADO'
+                ? actuales.map((otro) => (otro.id === posteo.id ? { ...otro, estado: 'ELIMINADO' as const } : otro))
+                : // con un filtro de estado activo, el eliminado ya no corresponde a esta vista
+                  actuales.filter((otro) => otro.id !== posteo.id),
             );
           } catch (e) {
             Alert.alert('No se pudo eliminar', mensajeDeError(e));
@@ -120,6 +124,7 @@ export function AdminReportesScreen() {
             </Tarjeta>
           );
         })}
+      {!error && <BotonCargarMas hayMas={hayMas} cargando={cargandoMas} onPress={cargarMas} />}
     </PantallaConLista>
   );
 }
