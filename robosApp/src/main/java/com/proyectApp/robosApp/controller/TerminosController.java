@@ -33,7 +33,7 @@ public class TerminosController {
 	@PostMapping("/aceptar")
 	public AceptacionResponse aceptar(@Valid @RequestBody AceptarTerminosRequest request,
 			HttpServletRequest httpRequest) {
-		// OJO: detrás de un proxy o balanceador esto da la IP del proxy; ahí habrá que leer X-Forwarded-For
+		// detrás de un proxy, el perfil prod hace que esta sea la IP real del usuario (ver application-prod.yaml)
 		return terminosService.aceptar(usuarioActualService.obtener(), request.terminosId(),
 				httpRequest.getRemoteAddr());
 	}

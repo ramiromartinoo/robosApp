@@ -14,7 +14,7 @@ API del proyecto de reportes de robos e incidentes de inseguridad en Mar del Pla
 
 ### 1. Base de datos
 
-Con MySQL corriendo, crear la base vacía. Las tablas las crea la aplicación sola al arrancar.
+Con MySQL corriendo, crear la base vacía. Las tablas las crea la aplicación sola al arrancar, con las migraciones de Flyway.
 
 ```sql
 CREATE DATABASE robosapp_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -102,6 +102,32 @@ Los errores vuelven siempre con la misma forma: `{ "mensaje": "...", "errores": 
 - **Denuncias:** al llegar a 5 denuncias pendientes, el reporte se oculta del feed hasta que un administrador lo revise.
 - **Administradores:** el rol se asigna a mano en la base (`UPDATE usuarios SET rol = 'ADMIN' WHERE email = '...'`). No hay ninguna ruta que lo cambie.
 
+## Base de datos y migraciones
+
+Las tablas no las crea Hibernate: las crea y modifica **Flyway**, con los archivos SQL de `src/main/resources/db/migration`. Al arrancar, la aplicación aplica las migraciones que falten y Hibernate verifica que las tablas coincidan con las entidades; si no coinciden, no arranca.
+
+Para cambiar la base (agregar una columna, una tabla, un índice):
+
+1. Crear un archivo nuevo con el número siguiente: `V2__descripcion_corta.sql`, `V3__...`, etc.
+2. Escribir ahí el SQL del cambio y ajustar la entidad de Java correspondiente.
+3. Arrancar la aplicación: Flyway lo aplica solo.
+
+**Una migración que ya se ejecutó no se edita nunca**, ni siquiera para corregir un error: el arreglo va en un archivo nuevo. Si se edita, la aplicación deja de arrancar en todas las bases donde ya corrió.
+
+Una base que ya existía de antes de Flyway se adopta sola como versión 1 la primera vez, sin tocar sus datos.
+
+## Producción
+
+En un servidor se arranca con el perfil `prod` y la configuración por variables de entorno:
+
+| Variable | Para qué |
+|---|---|
+| `SPRING_PROFILES_ACTIVE=prod` | Activa la configuración de producción (`application-prod.yaml`). |
+| `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` | La base de datos. |
+| `ROBOSAPP_FIREBASE_CREDENCIALES` | Ruta a la clave de servicio de Firebase. |
+
+Con ese perfil los tokens de prueba quedan apagados, la IP real del usuario se toma del proxy del hosting, y la aplicación **se niega a arrancar** si detecta los tokens de prueba activados o le falta Firebase.
+
 ## Login con Google (opcional)
 
 Para validar tokens reales de Firebase hace falta la clave de servicio del proyecto de Firebase (un archivo `.json`). Se guarda fuera de `src/`, se indica su ruta en `robosapp.firebase.credenciales` dentro de `application-local.yaml`, y **no se sube al repositorio**: pedirla por un medio privado. Sin esa clave la aplicación arranca igual y solo funcionan los tokens de prueba.
@@ -122,8 +148,7 @@ Dentro de `src/main/java/com/proyectApp/robosApp/`:
 
 ## Pendientes conocidos
 
-- Las tablas se crean con `ddl-auto: update`, que sirve solo para desarrollo. Falta pasar a migraciones (Flyway).
-- Los enums se guardan como texto con una restricción `CHECK`. Al agregar un valor nuevo (por ejemplo, otra categoría) hay que actualizar esa restricción a mano en la tabla.
+- Las bases creadas antes de Flyway conservan unas restricciones `CHECK` sobre los enums: en esas bases, agregar un valor nuevo (por ejemplo, otra categoría) obliga a quitarlas con una migración. Las bases nuevas no las tienen.
 - Hay una sola prueba automática, que verifica que la aplicación arranca. Necesita la base de datos disponible.
 - Las notificaciones push no están implementadas.
 

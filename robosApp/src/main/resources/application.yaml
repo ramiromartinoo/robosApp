@@ -5,12 +5,19 @@ spring:
   datasource:
     # el puerto por defecto es el 3307; con otro, definir DB_URL en application-local.yaml
     url: ${DB_URL:jdbc:mysql://localhost:3307/robosapp_db}
-    username: root
+    username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD}
   jpa:
     hibernate:
-      ddl-auto: update   # solo desarrollo; a futuro migraciones con Flyway
+      # Las tablas las crea y modifica Flyway (src/main/resources/db/migration).
+      # Hibernate solo verifica al arrancar que coincidan con las entidades: si no, la app no levanta.
+      ddl-auto: validate
     open-in-view: false
+  flyway:
+    # Una base que ya existía de antes de Flyway (creada por Hibernate) se marca como versión 1
+    # sin tocarla. Una base vacía se crea completa con las migraciones.
+    baseline-on-migrate: true
+    baseline-version: 1
 
 robosapp:
   seguridad:
