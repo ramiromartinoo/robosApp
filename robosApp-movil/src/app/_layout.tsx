@@ -40,7 +40,10 @@ function Navegacion() {
     );
   }
 
+  // una cuenta suspendida o baneada solo ve la pantalla que se lo explica, aunque haya aceptado los términos
+  const cuentaActiva = sesion.estado === 'ACTIVO';
   const aceptoLosTerminos = !sesion.terminosPendientes;
+  const puedeUsarLaApp = cuentaActiva && aceptoLosTerminos;
 
   return (
     <Stack
@@ -51,7 +54,7 @@ function Navegacion() {
         headerTitleAlign: 'center',
         headerBackTitle: 'Volver',
       }}>
-      <Stack.Protected guard={aceptoLosTerminos}>
+      <Stack.Protected guard={puedeUsarLaApp}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="cuenta" options={{ title: 'Mi cuenta' }} />
         <Stack.Screen name="sugerencias" options={{ title: 'Sugerencias' }} />
@@ -61,7 +64,7 @@ function Navegacion() {
 
       {/* El panel solo existe para administradores. Es una comodidad de la app, no la seguridad:
           el backend rechaza igual cualquier pedido a /admin de quien no tenga ese rol. */}
-      <Stack.Protected guard={aceptoLosTerminos && sesion.rol === 'ADMIN'}>
+      <Stack.Protected guard={puedeUsarLaApp && sesion.rol === 'ADMIN'}>
         <Stack.Screen name="admin/index" options={{ title: 'Panel de administrador' }} />
         <Stack.Screen name="admin/denuncias" options={{ title: 'Denuncias' }} />
         <Stack.Screen name="admin/sugerencias" options={{ title: 'Sugerencias' }} />
@@ -70,8 +73,12 @@ function Navegacion() {
         <Stack.Screen name="admin/estadisticas" options={{ title: 'Estadísticas' }} />
       </Stack.Protected>
 
-      <Stack.Protected guard={!aceptoLosTerminos}>
+      <Stack.Protected guard={cuentaActiva && !aceptoLosTerminos}>
         <Stack.Screen name="bienvenida" options={{ headerShown: false }} />
+      </Stack.Protected>
+
+      <Stack.Protected guard={!cuentaActiva}>
+        <Stack.Screen name="cuenta-bloqueada" options={{ headerShown: false }} />
       </Stack.Protected>
     </Stack>
   );

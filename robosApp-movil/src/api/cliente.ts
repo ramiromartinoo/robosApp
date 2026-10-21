@@ -30,6 +30,15 @@ export function alHaberTerminosPendientes(aviso: (() => void) | null) {
   avisarTerminosPendientes = aviso;
 }
 
+// Si un administrador suspende o banea la cuenta, el backend responde 403 con errores.cuenta
+// a cualquier pedido. La sesión se suscribe para mostrar la pantalla de cuenta bloqueada.
+type EstadoBloqueado = 'SUSPENDIDO' | 'BANEADO';
+let avisarCuentaBloqueada: ((estado: EstadoBloqueado) => void) | null = null;
+
+export function alBloquearseLaCuenta(aviso: ((estado: EstadoBloqueado) => void) | null) {
+  avisarCuentaBloqueada = aviso;
+}
+
 export class ErrorDeApi extends Error {
   // código HTTP, o 0 si ni siquiera se pudo conectar
   status: number;
@@ -90,6 +99,10 @@ export async function pedir<T>(ruta: string, opciones: RequestInit = {}): Promis
   const cuerpo = await respuesta.json().catch(() => null);
   if (respuesta.status === TERMINOS_PENDIENTES) {
     avisarTerminosPendientes?.();
+  }
+  const cuentaBloqueada = cuerpo?.errores?.cuenta;
+  if (respuesta.status === 403 && (cuentaBloqueada === 'SUSPENDIDO' || cuentaBloqueada === 'BANEADO')) {
+    avisarCuentaBloqueada?.(cuentaBloqueada);
   }
   if (!respuesta.ok) {
     throw new ErrorDeApi(respuesta.status, cuerpo?.mensaje ?? 'Ocurrió un error inesperado', cuerpo?.errores ?? {});
