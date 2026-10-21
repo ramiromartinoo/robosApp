@@ -12,6 +12,7 @@ import org.springframework.data.repository.query.Param;
 
 import com.proyectApp.robosApp.entity.Denuncia;
 import com.proyectApp.robosApp.entity.EstadoDenuncia;
+import com.proyectApp.robosApp.entity.ResolucionDenuncia;
 
 public interface DenunciaRepository extends JpaRepository<Denuncia, Long> {
 
@@ -41,6 +42,16 @@ public interface DenunciaRepository extends JpaRepository<Denuncia, Long> {
 			""")
 	List<Denuncia> buscarConPosteo(@Param("estado") EstadoDenuncia estado,
 			@Param("posteoIds") Collection<Long> posteoIds);
+
+	// Reputación: cuántos reportes de cada usuario eliminó la moderación al resolver denuncias
+	@Query("""
+			select new com.proyectApp.robosApp.repository.ConteoPorUsuario(d.posteo.usuario.id, count(distinct d.posteo.id))
+			from Denuncia d
+			where d.posteo.usuario.id in :usuarioIds and d.resolucion = :resolucion
+			group by d.posteo.usuario.id
+			""")
+	List<ConteoPorUsuario> contarReportesEliminadosPorUsuario(@Param("usuarioIds") Collection<Long> usuarioIds,
+			@Param("resolucion") ResolucionDenuncia resolucion);
 
 	// Denuncias hechas por el usuario y denuncias sobre sus posteos (para eliminar su cuenta)
 	@Modifying

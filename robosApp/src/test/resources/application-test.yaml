@@ -15,3 +15,6 @@ robosapp:
     maximo-por-hora: 3
   denuncias:
     umbral-auto-ocultamiento: 2
+  reputacion:
+    reportes-minimos: 1
+    puntos-para-confiable: 2

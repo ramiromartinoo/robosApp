@@ -117,6 +117,10 @@ public class DatosDeEjemplo {
 		for (int i = 0; i < VECINOS.size(); i++) {
 			vecinos.add(vecino("ejemplo-" + (i + 1), "ejemplo" + (i + 1) + "@robosapp.local", VECINOS.get(i)));
 		}
+		// los vecinos de ejemplo figuran registrados hace dos meses: si no, todos aparecerían como "cuenta nueva"
+		for (Usuario vecino : vecinos) {
+			usuarioRepository.cambiarFechaDeRegistro(vecino.getId(), LocalDateTime.now().minusDays(60));
+		}
 		Usuario usuarioDePrueba = usuarioRepository.findByFirebaseUid(DatosDePrueba.UID_CLIENTE_2).orElseThrow();
 
 		LocalDateTime ahora = LocalDateTime.now();

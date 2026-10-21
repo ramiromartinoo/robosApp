@@ -9,6 +9,7 @@ import {
   BotonCargarMas,
   DistanciaAlLugar,
   EstadoDeLista,
+  EtiquetaDeConfianza,
   Etiqueta,
   PantallaConLista,
   Tarjeta,
@@ -110,6 +111,7 @@ export function AdminDenunciasScreen() {
                   fondo={colores.negarSuave}
                 />
                 <Etiqueta texto={categoria.nombre} color={categoria.color} fondo={categoria.fondo} />
+                <EtiquetaDeConfianza nivel={posteo.autorConfianza} />
                 {posteo.estado === 'EN_REVISION' && (
                   <Etiqueta texto="Oculto del feed" color={colores.aviso} fondo={colores.avisoSuave} />
                 )}

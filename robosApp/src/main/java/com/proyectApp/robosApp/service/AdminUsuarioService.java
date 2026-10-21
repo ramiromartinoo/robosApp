@@ -1,9 +1,11 @@
 package com.proyectApp.robosApp.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +24,7 @@ import com.proyectApp.robosApp.repository.DenunciaRepository;
 import com.proyectApp.robosApp.repository.PosteoRepository;
 import com.proyectApp.robosApp.repository.SugerenciaRepository;
 import com.proyectApp.robosApp.repository.UsuarioRepository;
+import com.proyectApp.robosApp.service.ReputacionService.Reputacion;
 
 import lombok.RequiredArgsConstructor;
 
@@ -35,12 +38,15 @@ public class AdminUsuarioService {
 	private final ConfirmacionRepository confirmacionRepository;
 	private final AceptacionTerminosRepository aceptacionRepository;
 	private final SugerenciaRepository sugerenciaRepository;
+	private final ReputacionService reputacionService;
 
 	@Transactional(readOnly = true)
 	public PaginaResponse<UsuarioResponse> listar(int pagina, int tamanio) {
-		return PaginaResponse.desde(usuarioRepository
-				.findAll(Paginacion.masRecientesPrimero(pagina, tamanio, "fechaRegistro"))
-				.map(UsuarioResponse::desde));
+		Page<Usuario> usuarios = usuarioRepository
+				.findAll(Paginacion.masRecientesPrimero(pagina, tamanio, "fechaRegistro"));
+		Map<Long, Reputacion> reputaciones = reputacionService
+				.deUsuarios(usuarios.getContent().stream().map(Usuario::getId).toList());
+		return PaginaResponse.desde(usuarios.map(usuario -> conReputacion(usuario, reputaciones)));
 	}
 
 	// Otras cuentas que publicaron desde el mismo teléfono o la misma conexión (vale también para administradores)
@@ -66,7 +72,7 @@ public class AdminUsuarioService {
 	public UsuarioResponse cambiarEstado(Long id, EstadoUsuario estado) {
 		Usuario usuario = buscarCliente(id);
 		usuario.setEstado(estado);
-		return UsuarioResponse.desde(usuario);
+		return conReputacion(usuario, reputacionService.deUsuarios(List.of(id)));
 	}
 
 	// Borrado definitivo del usuario y de todo lo suyo. No se puede deshacer.
@@ -81,6 +87,11 @@ public class AdminUsuarioService {
 		aceptacionRepository.eliminarDeUsuario(id);
 		sugerenciaRepository.eliminarDeUsuario(id);
 		usuarioRepository.delete(usuario);
+	}
+
+	private UsuarioResponse conReputacion(Usuario usuario, Map<Long, Reputacion> reputaciones) {
+		Reputacion reputacion = reputaciones.get(usuario.getId());
+		return UsuarioResponse.desde(usuario, reputacion.nivel(), reputacion.puntos());
 	}
 
 	private Usuario buscarCliente(Long id) {

@@ -25,6 +25,8 @@ export type Posteo = {
   miVoto: TipoConfirmacion | null;
   // true si el reporte lo publicó el usuario de la app
   esMio: boolean;
+  // reputación del autor (ver ReputacionService en el backend). Nunca llega "DUDOSO": eso solo lo ve el admin
+  autorConfianza: 'NUEVO' | 'NORMAL' | 'CONFIABLE';
 };
 
 // Un reporte visto por su autor (GET /reportes/mios)

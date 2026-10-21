@@ -3,6 +3,7 @@ package com.proyectApp.robosApp.dto;
 import java.time.LocalDateTime;
 
 import com.proyectApp.robosApp.entity.EstadoUsuario;
+import com.proyectApp.robosApp.entity.NivelDeConfianza;
 import com.proyectApp.robosApp.entity.Rol;
 import com.proyectApp.robosApp.entity.Usuario;
 
@@ -14,9 +15,12 @@ public record UsuarioResponse(
 		Rol rol,
 		EstadoUsuario estado,
 		int advertencias,
-		LocalDateTime fechaRegistro) {
+		LocalDateTime fechaRegistro,
+		// reputación (ver ReputacionService), incluido DUDOSO, y los puntos de los que sale
+		NivelDeConfianza confianza,
+		int puntosDeConfianza) {
 
-	public static UsuarioResponse desde(Usuario usuario) {
+	public static UsuarioResponse desde(Usuario usuario, NivelDeConfianza confianza, int puntosDeConfianza) {
 		return new UsuarioResponse(
 				usuario.getId(),
 				usuario.getEmail(),
@@ -24,7 +28,9 @@ public record UsuarioResponse(
 				usuario.getRol(),
 				usuario.getEstado(),
 				usuario.getAdvertencias(),
-				usuario.getFechaRegistro());
+				usuario.getFechaRegistro(),
+				confianza,
+				puntosDeConfianza);
 	}
 
 }

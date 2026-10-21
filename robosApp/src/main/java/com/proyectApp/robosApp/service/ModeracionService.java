@@ -28,6 +28,7 @@ import com.proyectApp.robosApp.exception.ConflictoException;
 import com.proyectApp.robosApp.exception.RecursoNoEncontradoException;
 import com.proyectApp.robosApp.repository.DenunciaRepository;
 import com.proyectApp.robosApp.repository.PosteoRepository;
+import com.proyectApp.robosApp.service.ReputacionService.Reputacion;
 
 import lombok.RequiredArgsConstructor;
 
@@ -39,15 +40,16 @@ public class ModeracionService {
 	private final PosteoRepository posteoRepository;
 	private final DenunciaRepository denunciaRepository;
 	private final UsuarioActualService usuarioActualService;
+	private final ReputacionService reputacionService;
 
 	// usuarioId y estado son filtros opcionales
 	@Transactional(readOnly = true)
 	public PaginaResponse<AdminPosteoResponse> listarPosteos(Long usuarioId, EstadoPosteo estado,
 			int pagina, int tamanio) {
-		return PaginaResponse.desde(posteoRepository
-				.buscarParaAdmin(usuarioId, estado,
-						Paginacion.masRecientesPrimero(pagina, tamanio, "fechaHoraPublicacion"))
-				.map(AdminPosteoResponse::desde));
+		Page<Posteo> posteos = posteoRepository.buscarParaAdmin(usuarioId, estado,
+				Paginacion.masRecientesPrimero(pagina, tamanio, "fechaHoraPublicacion"));
+		Map<Long, Reputacion> reputaciones = reputacionesDeLosAutores(posteos.getContent());
+		return PaginaResponse.desde(posteos.map(posteo -> paraElPanel(posteo, reputaciones)));
 	}
 
 	// Eliminar un posteo también cierra sus denuncias pendientes, para que no queden en la cola
@@ -74,9 +76,11 @@ public class ModeracionService {
 		denunciaRepository.buscarConPosteo(EstadoDenuncia.PENDIENTE, posteoIds.getContent())
 				.forEach(denuncia -> porPosteo.get(denuncia.getPosteo().getId()).add(denuncia));
 
+		Map<Long, Reputacion> reputaciones = reputacionesDeLosAutores(
+				porPosteo.values().stream().map(denuncias -> denuncias.get(0).getPosteo()).toList());
 		List<DenunciasDePosteoResponse> contenido = porPosteo.values().stream()
 				.map(denuncias -> new DenunciasDePosteoResponse(
-						AdminPosteoResponse.desde(denuncias.get(0).getPosteo()),
+						paraElPanel(denuncias.get(0).getPosteo(), reputaciones),
 						denuncias.size(),
 						denuncias.stream().map(DenunciaAdminResponse::desde).toList()))
 				.toList();
@@ -120,6 +124,15 @@ public class ModeracionService {
 			denuncia.setFechaResolucion(ahora);
 			denuncia.setAdminResolvio(admin);
 		}
+	}
+
+	private Map<Long, Reputacion> reputacionesDeLosAutores(List<Posteo> posteos) {
+		return reputacionService
+				.deUsuarios(posteos.stream().map(posteo -> posteo.getUsuario().getId()).distinct().toList());
+	}
+
+	private AdminPosteoResponse paraElPanel(Posteo posteo, Map<Long, Reputacion> reputaciones) {
+		return AdminPosteoResponse.desde(posteo, reputaciones.get(posteo.getUsuario().getId()).nivel());
 	}
 
 	private Posteo buscarPosteo(Long posteoId) {

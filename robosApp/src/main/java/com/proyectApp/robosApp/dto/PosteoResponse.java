@@ -3,6 +3,7 @@ package com.proyectApp.robosApp.dto;
 import java.time.LocalDateTime;
 
 import com.proyectApp.robosApp.entity.Categoria;
+import com.proyectApp.robosApp.entity.NivelDeConfianza;
 import com.proyectApp.robosApp.entity.Posteo;
 import com.proyectApp.robosApp.entity.TipoConfirmacion;
 
@@ -23,10 +24,12 @@ public record PosteoResponse(
 		// qué votó quien hace la petición (null si no votó)
 		TipoConfirmacion miVoto,
 		// true si el posteo es de quien hace la petición
-		boolean esMio) {
+		boolean esMio,
+		// reputación del autor: NUEVO, NORMAL o CONFIABLE (DUDOSO nunca se muestra en público)
+		NivelDeConfianza autorConfianza) {
 
 	public static PosteoResponse desde(Posteo posteo, long confirmaciones, long negaciones,
-			TipoConfirmacion miVoto, boolean esMio) {
+			TipoConfirmacion miVoto, boolean esMio, NivelDeConfianza autorConfianza) {
 		return new PosteoResponse(
 				posteo.getId(),
 				posteo.getDescripcion(),
@@ -40,7 +43,8 @@ public record PosteoResponse(
 				confirmaciones,
 				negaciones,
 				miVoto,
-				esMio);
+				esMio,
+				autorConfianza);
 	}
 
 	// 3 decimales ≈ 100 metros: la ubicación pública es aproximada, nunca la exacta

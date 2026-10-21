@@ -31,3 +31,9 @@ robosapp:
   denuncias:
     # con esta cantidad de denuncias pendientes el posteo pasa a EN_REVISION y sale del feed
     umbral-auto-ocultamiento: 5
+  reputacion:
+    # una cuenta es "nueva" mientras tenga menos de estos días o menos de estos reportes vigentes
+    dias-de-cuenta-nueva: 7
+    reportes-minimos: 3
+    # puntos (confirmaciones recibidas menos negaciones y sanciones) para ser "confiable"
+    puntos-para-confiable: 10

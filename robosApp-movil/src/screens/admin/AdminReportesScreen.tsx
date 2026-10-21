@@ -9,6 +9,7 @@ import {
   BotonCargarMas,
   DistanciaAlLugar,
   EstadoDeLista,
+  EtiquetaDeConfianza,
   Etiqueta,
   Filtros,
   PantallaConLista,
@@ -106,6 +107,7 @@ export function AdminReportesScreen() {
               <View style={styles.etiquetas}>
                 <Etiqueta texto={estado.nombre} color={estado.color} fondo={estado.fondo} />
                 <Etiqueta texto={categoria.nombre} color={categoria.color} fondo={categoria.fondo} />
+                <EtiquetaDeConfianza nivel={posteo.autorConfianza} />
               </View>
               <Text style={styles.descripcion}>{posteo.descripcion}</Text>
               <Text style={styles.detalle}>
