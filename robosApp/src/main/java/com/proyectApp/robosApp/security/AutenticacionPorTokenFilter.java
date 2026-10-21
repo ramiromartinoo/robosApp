@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -39,9 +38,12 @@ public class AutenticacionPorTokenFilter extends OncePerRequestFilter {
 					.flatMap(token -> usuarioRepository.findByFirebaseUid(token.uid()));
 
 			if (usuario.isPresent()) {
-				if (usuario.get().getEstado() != EstadoUsuario.ACTIVO) {
-					RespuestasDeSeguridad.escribir(response, HttpStatus.FORBIDDEN,
-							"Tu cuenta está suspendida o fue dada de baja");
+				EstadoUsuario estado = usuario.get().getEstado();
+				if (estado != EstadoUsuario.ACTIVO) {
+					RespuestasDeSeguridad.escribirCuentaBloqueada(response, estado.name(),
+							estado == EstadoUsuario.BANEADO
+									? "Tu cuenta fue dada de baja por no respetar los términos de uso"
+									: "Tu cuenta está suspendida");
 					return;
 				}
 				autenticar(usuario.get());

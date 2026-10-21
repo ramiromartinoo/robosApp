@@ -1,6 +1,6 @@
 import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 
-import { alHaberTerminosPendientes, ErrorDeApi } from '../api/cliente';
+import { alBloquearseLaCuenta, alHaberTerminosPendientes, ErrorDeApi } from '../api/cliente';
 import { iniciarSesion, Sesion } from '../api/sesion';
 
 type EstadoDeSesion = {
@@ -8,7 +8,7 @@ type EstadoDeSesion = {
   sesion: Sesion | null;
   cargando: boolean;
   error: string | null;
-  reintentar: () => void;
+  reintentar: () => Promise<void>;
   // lo llama la pantalla de bienvenida cuando el usuario acepta los términos
   marcarTerminosAceptados: () => void;
 };
@@ -43,6 +43,14 @@ export function ProveedorDeSesion({ children }: { children: ReactNode }) {
       setSesion((actual) => (actual && !actual.terminosPendientes ? { ...actual, terminosPendientes: true } : actual)),
     );
     return () => alHaberTerminosPendientes(null);
+  }, []);
+
+  // si un administrador suspende o banea la cuenta mientras se usa la app, se pasa a la pantalla de cuenta bloqueada
+  useEffect(() => {
+    alBloquearseLaCuenta((estado) =>
+      setSesion((actual) => (actual && actual.estado !== estado ? { ...actual, estado } : actual)),
+    );
+    return () => alBloquearseLaCuenta(null);
   }, []);
 
   const marcarTerminosAceptados = useCallback(() => {
