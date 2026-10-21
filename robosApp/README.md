@@ -133,6 +133,18 @@ Con ese perfil los tokens de prueba quedan apagados, la IP real del usuario se t
 
 Para validar tokens reales de Firebase hace falta la clave de servicio del proyecto de Firebase (un archivo `.json`). Se guarda fuera de `src/`, se indica su ruta en `robosapp.firebase.credenciales` dentro de `application-local.yaml`, y **no se sube al repositorio**: pedirla por un medio privado. Sin esa clave la aplicación arranca igual y solo funcionan los tokens de prueba.
 
+## Pruebas automáticas
+
+Prueban de punta a punta las reglas importantes, haciéndole pedidos al backend como lo haría la app: el límite de publicaciones por hora, el auto-ocultamiento por denuncias, las resoluciones del administrador, los votos, los permisos, los términos pendientes, las cuentas bloqueadas y que el feed no exponga datos internos.
+
+```powershell
+.\mvnw.cmd test
+```
+
+Necesitan MySQL corriendo, pero **no tocan la base de desarrollo**: usan una aparte, `robosapp_test`, que se crea sola la primera vez y se limpia antes de cada prueba. Si MySQL no está en el puerto 3307, hay que definir `DB_URL_TEST` en `application-local.yaml` (ver `src/test/resources/application-test.yaml`).
+
+Conviene correrlas antes de subir un cambio al backend: si alguna falla, algo se rompió.
+
 ## Organización del código
 
 Dentro de `src/main/java/com/proyectApp/robosApp/`:
@@ -150,7 +162,6 @@ Dentro de `src/main/java/com/proyectApp/robosApp/`:
 ## Pendientes conocidos
 
 - Las bases creadas antes de Flyway conservan unas restricciones `CHECK` sobre los enums: en esas bases, agregar un valor nuevo (por ejemplo, otra categoría) obliga a quitarlas con una migración. Las bases nuevas no las tienen.
-- Hay una sola prueba automática, que verifica que la aplicación arranca. Necesita la base de datos disponible.
 - Las notificaciones push no están implementadas.
 
 ## Ramas

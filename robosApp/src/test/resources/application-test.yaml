@@ -1,0 +1,17 @@
+# Configuración de las pruebas automáticas (perfil "test").
+# Usan una base aparte, robosapp_test, que se crea sola la primera vez: nunca tocan la base de desarrollo.
+# Si tu MySQL no está en el puerto 3307, definí DB_URL_TEST en application-local.yaml.
+
+spring:
+  datasource:
+    url: ${DB_URL_TEST:jdbc:mysql://localhost:3307/robosapp_test?createDatabaseIfNotExist=true}
+
+robosapp:
+  seguridad:
+    # las pruebas entran con los tokens de prueba (dev-cliente, dev-admin, etc.)
+    tokens-de-prueba: true
+  # valores chicos para que las pruebas lleguen a los límites con pocos pedidos
+  posteos:
+    maximo-por-hora: 3
+  denuncias:
+    umbral-auto-ocultamiento: 2
