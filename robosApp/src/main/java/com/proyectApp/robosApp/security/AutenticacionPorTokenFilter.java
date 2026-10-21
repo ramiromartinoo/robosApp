@@ -29,6 +29,13 @@ public class AutenticacionPorTokenFilter extends OncePerRequestFilter {
 	private final AutenticadorDeTokens autenticadorDeTokens;
 	private final UsuarioRepository usuarioRepository;
 
+	// El inicio de sesión (/auth/...) no pasa por este filtro: no necesita estar autenticado, y tiene que poder
+	// responder con el estado de la cuenta aunque esté suspendida o baneada, para que la app muestre su pantalla.
+	@Override
+	protected boolean shouldNotFilter(HttpServletRequest request) {
+		return request.getRequestURI().startsWith(request.getContextPath() + "/auth/");
+	}
+
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
 			throws ServletException, IOException {
