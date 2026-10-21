@@ -101,6 +101,7 @@ Los errores vuelven siempre con la misma forma: `{ "mensaje": "...", "errores": 
 - **Ubicación:** se guarda la exacta, pero la API solo devuelve una aproximada (unos 100 metros).
 - **Denuncias:** al llegar a 5 denuncias pendientes, el reporte se oculta del feed hasta que un administrador lo revise.
 - **Administradores:** el rol se asigna a mano en la base (`UPDATE usuarios SET rol = 'ADMIN' WHERE email = '...'`). No hay ninguna ruta que lo cambie.
+- **Antiabuso:** al publicar se guardan la IP, un identificador de la instalación de la app (encabezado `X-Dispositivo`) y la distancia entre el teléfono y el lugar. Nunca se devuelven en el feed. El panel los usa para mostrar la distancia de cada reporte y las cuentas que publicaron desde el mismo teléfono o la misma conexión (`GET /admin/usuarios/{id}/relacionadas`).
 
 ## Base de datos y migraciones
 

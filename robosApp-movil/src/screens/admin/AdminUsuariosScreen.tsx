@@ -4,8 +4,10 @@ import { Alert, StyleSheet, Text, View } from 'react-native';
 
 import {
   cambiarEstadoDeUsuario,
+  CuentasRelacionadas,
   eliminarUsuario,
   EstadoDeUsuario,
+  obtenerCuentasRelacionadas,
   obtenerUsuarios,
   UsuarioAdmin,
 } from '../../api/admin';
@@ -160,6 +162,8 @@ export function AdminUsuariosScreen() {
                 }
               />
 
+              <CuentasRelacionadasDe usuarioId={usuario.id} />
+
               {/* las cuentas de administrador no se pueden suspender ni eliminar desde la app */}
               {!esAdmin &&
                 (usuario.estado === 'ACTIVO' ? (
@@ -205,7 +209,75 @@ export function AdminUsuariosScreen() {
   );
 }
 
+// Otras cuentas que publicaron desde el mismo teléfono o la misma conexión. Se consulta a pedido,
+// no para todos los usuarios de la lista.
+function CuentasRelacionadasDe({ usuarioId }: { usuarioId: number }) {
+  const [resultado, setResultado] = useState<CuentasRelacionadas | null>(null);
+  const [buscando, setBuscando] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const buscar = async () => {
+    setBuscando(true);
+    setError(null);
+    try {
+      setResultado(await obtenerCuentasRelacionadas(usuarioId));
+    } catch (e) {
+      setError(mensajeDeError(e));
+    } finally {
+      setBuscando(false);
+    }
+  };
+
+  if (!resultado) {
+    return (
+      <>
+        <Boton texto="Ver cuentas relacionadas" icono="git-network-outline" onPress={buscar} deshabilitado={buscando} />
+        {error && <Text style={styles.relacionadasError}>{error}</Text>}
+      </>
+    );
+  }
+
+  const nombres = (cuentas: CuentasRelacionadas['mismoTelefono']) =>
+    cuentas.map((cuenta) => cuenta.nombreVisible + (cuenta.estado !== 'ACTIVO' ? ` (${ESTADOS[cuenta.estado].nombre.toLowerCase()})` : '')).join(', ');
+
+  return (
+    <View style={styles.relacionadas}>
+      {resultado.mismoTelefono.length === 0 && resultado.mismaConexion.length === 0 ? (
+        <Text style={styles.detalle}>No publicó desde un teléfono ni una conexión que usen otras cuentas.</Text>
+      ) : (
+        <>
+          {resultado.mismoTelefono.length > 0 && (
+            <Text style={styles.relacionadasFuerte}>
+              Mismo teléfono que: {nombres(resultado.mismoTelefono)}
+            </Text>
+          )}
+          {resultado.mismaConexion.length > 0 && (
+            <Text style={styles.detalle}>
+              Misma conexión que: {nombres(resultado.mismaConexion)}. Puede ser un wifi compartido.
+            </Text>
+          )}
+        </>
+      )}
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
+  relacionadas: {
+    backgroundColor: colores.fondo,
+    borderRadius: 12,
+    padding: 12,
+    gap: 6,
+  },
+  relacionadasFuerte: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: colores.aviso,
+  },
+  relacionadasError: {
+    fontSize: 14,
+    color: colores.errorTexto,
+  },
   encabezado: {
     flexDirection: 'row',
     alignItems: 'center',

@@ -1,8 +1,14 @@
 package com.proyectApp.robosApp.service;
 
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.proyectApp.robosApp.dto.CuentasRelacionadasResponse;
+import com.proyectApp.robosApp.dto.CuentasRelacionadasResponse.CuentaRelacionada;
 import com.proyectApp.robosApp.dto.PaginaResponse;
 import com.proyectApp.robosApp.dto.UsuarioResponse;
 import com.proyectApp.robosApp.entity.EstadoUsuario;
@@ -35,6 +41,24 @@ public class AdminUsuarioService {
 		return PaginaResponse.desde(usuarioRepository
 				.findAll(Paginacion.masRecientesPrimero(pagina, tamanio, "fechaRegistro"))
 				.map(UsuarioResponse::desde));
+	}
+
+	// Otras cuentas que publicaron desde el mismo teléfono o la misma conexión (vale también para administradores)
+	@Transactional(readOnly = true)
+	public CuentasRelacionadasResponse cuentasRelacionadas(Long id) {
+		if (!usuarioRepository.existsById(id)) {
+			throw new RecursoNoEncontradoException("El usuario no existe");
+		}
+		List<CuentaRelacionada> mismoTelefono = posteoRepository.cuentasConElMismoTelefono(id).stream()
+				.map(CuentaRelacionada::desde)
+				.toList();
+		// si ya aparece por el teléfono, no se repite como "misma conexión"
+		Set<Long> yaListadas = mismoTelefono.stream().map(CuentaRelacionada::id).collect(Collectors.toSet());
+		List<CuentaRelacionada> mismaConexion = posteoRepository.cuentasConLaMismaConexion(id).stream()
+				.filter(usuario -> !yaListadas.contains(usuario.getId()))
+				.map(CuentaRelacionada::desde)
+				.toList();
+		return new CuentasRelacionadasResponse(mismoTelefono, mismaConexion);
 	}
 
 	// Suspender, banear o reactivar. Un usuario que no está ACTIVO no puede usar la API.

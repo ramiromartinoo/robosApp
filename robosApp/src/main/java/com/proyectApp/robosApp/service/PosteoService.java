@@ -6,6 +6,7 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -43,6 +44,8 @@ public class PosteoService {
 	private static final double RADIO_MAXIMO_KM = 50;
 	private static final double KM_POR_GRADO = 111.0;
 	private static final double MARGEN_GRADOS = 0.001;
+	// identificador de dispositivo que genera la app: letras, números y guiones
+	private static final Pattern FORMATO_DE_DISPOSITIVO = Pattern.compile("[A-Za-z0-9-]{8,64}");
 
 	private final PosteoRepository posteoRepository;
 	private final ConfirmacionRepository confirmacionRepository;
@@ -62,7 +65,8 @@ public class PosteoService {
 	}
 
 	@Transactional
-	public PosteoResponse crear(CrearPosteoRequest request) {
+	// ip y dispositivo son datos internos para detectar abuso: se guardan pero nunca se devuelven en el feed
+	public PosteoResponse crear(CrearPosteoRequest request, String ip, String dispositivo) {
 		Usuario usuario = usuarioActualService.obtener();
 		// cuenta también los eliminados: borrar y volver a publicar no esquiva el límite
 		long recientes = posteoRepository.countByUsuarioIdAndFechaHoraPublicacionAfter(
@@ -75,6 +79,9 @@ public class PosteoService {
 		Posteo posteo = new Posteo();
 		posteo.setUsuario(usuario);
 		copiarDatos(request, posteo);
+		posteo.setIpPublicacion(ip);
+		posteo.setDispositivoId(dispositivoValido(dispositivo));
+		posteo.setDistanciaAlLugarM(request.distanciaAlLugarM());
 		return PosteoResponse.desde(posteoRepository.save(posteo), 0, 0, null, true);
 	}
 
@@ -129,6 +136,11 @@ public class PosteoService {
 			throw new AccesoDenegadoException("Solo podés modificar tus propias publicaciones");
 		}
 		return posteo;
+	}
+
+	// El identificador lo manda la app: si no tiene la forma esperada se descarta en vez de guardar cualquier cosa
+	private String dispositivoValido(String dispositivo) {
+		return dispositivo != null && FORMATO_DE_DISPOSITIVO.matcher(dispositivo).matches() ? dispositivo : null;
 	}
 
 	private void copiarDatos(CrearPosteoRequest request, Posteo posteo) {

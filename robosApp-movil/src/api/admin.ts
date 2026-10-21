@@ -33,6 +33,8 @@ export type PosteoAdmin = {
   estado: EstadoDePosteo;
   usuarioId: number;
   autor: string;
+  // metros entre el teléfono del autor y el lugar al publicar; null si no se conocía
+  distanciaAlLugarM: number | null;
 };
 
 export type DenunciaAdmin = {
@@ -125,4 +127,19 @@ export function responderSugerencia(sugerenciaId: number, respuesta: string): Pr
 
 export function obtenerEstadisticas(dias: number): Promise<Estadisticas> {
   return pedir(`/admin/estadisticas?dias=${dias}`);
+}
+
+// --- Antiabuso ---
+
+export type CuentaRelacionada = { id: number; nombreVisible: string; estado: EstadoDeUsuario };
+
+export type CuentasRelacionadas = {
+  // indicio fuerte: publicaron desde el mismo teléfono
+  mismoTelefono: CuentaRelacionada[];
+  // indicio débil: misma IP (también pasa con familias o vecinos que comparten wifi)
+  mismaConexion: CuentaRelacionada[];
+};
+
+export function obtenerCuentasRelacionadas(usuarioId: number): Promise<CuentasRelacionadas> {
+  return pedir(`/admin/usuarios/${usuarioId}/relacionadas`);
 }

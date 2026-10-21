@@ -1,7 +1,28 @@
 import * as Location from 'expo-location';
 import { useCallback, useEffect, useState } from 'react';
 
-import { Punto } from './distancia';
+import { distanciaEnMetros, Punto } from './distancia';
+
+// Cuánto hay entre el teléfono y el lugar del reporte, en metros, al momento de publicar.
+// Es un dato interno para moderar: un reporte cargado muy lejos del lugar no es necesariamente falso,
+// pero ayuda a evaluarlo si lo denuncian. No pide permiso ni espera al GPS: si no hay una posición
+// reciente, devuelve null. La ubicación del teléfono no se envía; solo la distancia.
+export async function distanciaDesdeElTelefono(lugar: Punto): Promise<number | null> {
+  try {
+    const { status } = await Location.getForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      return null;
+    }
+    const posicion = await Location.getLastKnownPositionAsync({ maxAge: 10 * 60 * 1000 });
+    if (!posicion) {
+      return null;
+    }
+    const telefono = { latitud: posicion.coords.latitude, longitud: posicion.coords.longitude };
+    return Math.round(distanciaEnMetros(telefono, lugar));
+  } catch {
+    return null;
+  }
+}
 
 // Ubicación actual del usuario, para calcular a qué distancia ocurrió cada reporte.
 // Queda en null si no dio permiso o no se pudo obtener: la app tiene que funcionar igual sin ella.

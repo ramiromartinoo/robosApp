@@ -4,7 +4,7 @@ import { Alert, StyleSheet, Text, View } from 'react-native';
 import { DenunciasDePosteo, obtenerDenunciasPendientes, Resolucion, resolverDenuncias } from '../../api/admin';
 import { mensajeDeError } from '../../api/cliente';
 import { MotivoDenuncia } from '../../api/tipos';
-import { Boton, EstadoDeLista, Etiqueta, PantallaConLista, Tarjeta } from '../../components/admin/Comunes';
+import { Boton, DistanciaAlLugar, EstadoDeLista, Etiqueta, PantallaConLista, Tarjeta } from '../../components/admin/Comunes';
 import { CATEGORIAS } from '../../utils/categorias';
 import { haceCuanto } from '../../utils/fechas';
 import { colores } from '../../utils/tema';
@@ -107,6 +107,7 @@ export function AdminDenunciasScreen() {
               <Text style={styles.detalle}>
                 Publicado por {posteo.autor} · ocurrió {haceCuanto(posteo.fechaHoraIncidente)}
               </Text>
+              <DistanciaAlLugar metros={posteo.distanciaAlLugarM} />
 
               <View style={styles.motivos}>
                 {item.denuncias.map((denuncia) => (

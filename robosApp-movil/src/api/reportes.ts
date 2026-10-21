@@ -19,6 +19,8 @@ export type NuevoReporte = {
   longitud: number;
   // referencia aproximada en texto (ver obtenerZona); null si no se pudo averiguar
   zona: string | null;
+  // metros entre el teléfono y el lugar al publicar (dato interno antiabuso); null si no se conoce
+  distanciaAlLugarM: number | null;
   // fecha y hora local sin zona horaria (ver aFechaDelBackend)
   fechaHoraIncidente: string;
 };
