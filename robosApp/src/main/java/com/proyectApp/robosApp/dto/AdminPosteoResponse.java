@@ -18,7 +18,10 @@ public record AdminPosteoResponse(
 		LocalDateTime fechaHoraPublicacion,
 		EstadoPosteo estado,
 		Long usuarioId,
-		String autor) {
+		String autor,
+		// metros entre el teléfono del autor y el lugar al publicar (null si no se conocía).
+		// Una distancia muy grande no prueba nada, pero ayuda a evaluar un reporte denunciado.
+		Integer distanciaAlLugarM) {
 
 	public static AdminPosteoResponse desde(Posteo posteo) {
 		return new AdminPosteoResponse(
@@ -31,7 +34,8 @@ public record AdminPosteoResponse(
 				posteo.getFechaHoraPublicacion(),
 				posteo.getEstado(),
 				posteo.getUsuario().getId(),
-				posteo.getUsuario().getNombreVisible());
+				posteo.getUsuario().getNombreVisible(),
+				posteo.getDistanciaAlLugarM());
 	}
 
 }

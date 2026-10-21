@@ -4,7 +4,15 @@ import { Alert, StyleSheet, Text, View } from 'react-native';
 
 import { eliminarReporteComoAdmin, EstadoDePosteo, obtenerReportes, PosteoAdmin } from '../../api/admin';
 import { mensajeDeError } from '../../api/cliente';
-import { Boton, EstadoDeLista, Etiqueta, Filtros, PantallaConLista, Tarjeta } from '../../components/admin/Comunes';
+import {
+  Boton,
+  DistanciaAlLugar,
+  EstadoDeLista,
+  Etiqueta,
+  Filtros,
+  PantallaConLista,
+  Tarjeta,
+} from '../../components/admin/Comunes';
 import { CATEGORIAS } from '../../utils/categorias';
 import { haceCuanto } from '../../utils/fechas';
 import { colores } from '../../utils/tema';
@@ -99,6 +107,7 @@ export function AdminReportesScreen() {
               <Text style={styles.detalle}>
                 {posteo.autor} · ocurrió {haceCuanto(posteo.fechaHoraIncidente)}
               </Text>
+              <DistanciaAlLugar metros={posteo.distanciaAlLugarM} />
               {posteo.estado !== 'ELIMINADO' && (
                 <Boton
                   texto="Eliminar reporte"

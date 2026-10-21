@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -29,6 +30,7 @@ import com.proyectApp.robosApp.service.ConfirmacionService;
 import com.proyectApp.robosApp.service.DenunciaService;
 import com.proyectApp.robosApp.service.PosteoService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -43,8 +45,12 @@ public class PosteoController {
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public PosteoResponse crear(@Valid @RequestBody CrearPosteoRequest request) {
-		return posteoService.crear(request);
+	public PosteoResponse crear(@Valid @RequestBody CrearPosteoRequest request,
+			// identificador de instalación que manda la app, para detectar varias cuentas en un mismo teléfono
+			@RequestHeader(value = "X-Dispositivo", required = false) String dispositivo,
+			HttpServletRequest httpRequest) {
+		// detrás de un proxy, el perfil prod hace que esta sea la IP real del usuario (ver application-prod.yaml)
+		return posteoService.crear(request, httpRequest.getRemoteAddr(), dispositivo);
 	}
 
 	// Los reportes de quien hace la petición

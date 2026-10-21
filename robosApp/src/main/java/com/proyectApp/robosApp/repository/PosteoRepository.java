@@ -16,6 +16,7 @@ import com.proyectApp.robosApp.dto.PuntoHeatmapResponse;
 import com.proyectApp.robosApp.entity.Categoria;
 import com.proyectApp.robosApp.entity.EstadoPosteo;
 import com.proyectApp.robosApp.entity.Posteo;
+import com.proyectApp.robosApp.entity.Usuario;
 
 public interface PosteoRepository extends JpaRepository<Posteo, Long> {
 
@@ -58,6 +59,26 @@ public interface PosteoRepository extends JpaRepository<Posteo, Long> {
 
 	// "Mis reportes": todos los del usuario salvo los que están en el estado indicado
 	Page<Posteo> findByUsuarioIdAndEstadoNot(Long usuarioId, EstadoPosteo estado, Pageable pageable);
+
+	// Otras cuentas que publicaron desde algún teléfono que usó este usuario
+	@Query("""
+			select distinct suyo.usuario from Posteo mio, Posteo suyo
+			where mio.usuario.id = :usuarioId
+			  and mio.dispositivoId is not null
+			  and suyo.dispositivoId = mio.dispositivoId
+			  and suyo.usuario.id <> :usuarioId
+			""")
+	List<Usuario> cuentasConElMismoTelefono(@Param("usuarioId") Long usuarioId);
+
+	// Otras cuentas que publicaron desde alguna IP que usó este usuario
+	@Query("""
+			select distinct suyo.usuario from Posteo mio, Posteo suyo
+			where mio.usuario.id = :usuarioId
+			  and mio.ipPublicacion is not null
+			  and suyo.ipPublicacion = mio.ipPublicacion
+			  and suyo.usuario.id <> :usuarioId
+			""")
+	List<Usuario> cuentasConLaMismaConexion(@Param("usuarioId") Long usuarioId);
 
 	// Para el límite de publicaciones por hora
 	long countByUsuarioIdAndFechaHoraPublicacionAfter(Long usuarioId, LocalDateTime desde);

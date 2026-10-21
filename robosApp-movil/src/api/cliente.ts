@@ -2,6 +2,8 @@
 
 import Constants from 'expo-constants';
 
+import { obtenerIdDeDispositivo } from '../utils/dispositivo';
+
 const PUERTO_DEL_BACKEND = 8080;
 const ESPERA_MAXIMA_MS = 10000;
 
@@ -56,6 +58,9 @@ export async function pedir<T>(ruta: string, opciones: RequestInit = {}): Promis
     throw new ErrorDeApi(0, 'No se pudo detectar el servidor. Configurá EXPO_PUBLIC_API_URL en el archivo .env.local');
   }
 
+  // identificador de esta instalación: el backend lo usa para detectar varias cuentas en un mismo teléfono
+  const dispositivo = await obtenerIdDeDispositivo();
+
   // si el servidor no contesta (apagado, firewall, otra red) se corta la espera en vez de quedar cargando
   const corte = new AbortController();
   const temporizador = setTimeout(() => corte.abort(), ESPERA_MAXIMA_MS);
@@ -68,6 +73,7 @@ export async function pedir<T>(ruta: string, opciones: RequestInit = {}): Promis
       headers: {
         'Content-Type': 'application/json',
         ...(TOKEN ? { Authorization: `Bearer ${TOKEN}` } : {}),
+        'X-Dispositivo': dispositivo,
         ...opciones.headers,
       },
     });

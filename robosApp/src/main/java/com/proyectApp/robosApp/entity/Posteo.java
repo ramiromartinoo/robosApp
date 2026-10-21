@@ -75,4 +75,17 @@ public class Posteo {
 	@Column(nullable = false, length = 20)
 	private EstadoPosteo estado = EstadoPosteo.ACTIVO;
 
+	// --- Datos internos para detectar abuso. Nunca se exponen en el feed (ver V2__datos_antiabuso_en_reportes.sql) ---
+
+	@Column(name = "ip_publicacion", length = 45)
+	private String ipPublicacion;
+
+	// identificador que la app genera al instalarse
+	@Column(name = "dispositivo_id", length = 64)
+	private String dispositivoId;
+
+	// metros entre el teléfono y el lugar del reporte al momento de publicar
+	@Column(name = "distancia_al_lugar_m")
+	private Integer distanciaAlLugarM;
+
 }

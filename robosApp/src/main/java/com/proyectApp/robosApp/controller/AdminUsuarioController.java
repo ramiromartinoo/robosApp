@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.proyectApp.robosApp.dto.CambiarEstadoUsuarioRequest;
+import com.proyectApp.robosApp.dto.CuentasRelacionadasResponse;
 import com.proyectApp.robosApp.dto.PaginaResponse;
 import com.proyectApp.robosApp.dto.UsuarioResponse;
 import com.proyectApp.robosApp.service.AdminUsuarioService;
@@ -39,6 +40,12 @@ public class AdminUsuarioController {
 	public UsuarioResponse cambiarEstado(@PathVariable Long id,
 			@Valid @RequestBody CambiarEstadoUsuarioRequest request) {
 		return adminUsuarioService.cambiarEstado(id, request.estado());
+	}
+
+	// Otras cuentas que publicaron desde el mismo teléfono o la misma conexión
+	@GetMapping("/{id}/relacionadas")
+	public CuentasRelacionadasResponse cuentasRelacionadas(@PathVariable Long id) {
+		return adminUsuarioService.cuentasRelacionadas(id);
 	}
 
 	// Borrado definitivo del usuario y de todo lo suyo

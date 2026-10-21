@@ -240,3 +240,32 @@ const styles = StyleSheet.create({
     color: colores.textoSobreColor,
   },
 });
+
+// "Publicado a 8,4 km del lugar": ayuda a evaluar un reporte denunciado. Una distancia grande
+// no prueba nada (alguien puede cargarlo después, desde su casa), así que solo se resalta.
+const DISTANCIA_LLAMATIVA_M = 5000;
+
+export function DistanciaAlLugar({ metros }: { metros: number | null }) {
+  if (metros === null) {
+    return <Text style={estilosDeDistancia.normal}>Sin ubicación del teléfono al publicar</Text>;
+  }
+  const texto =
+    metros < 1000
+      ? `Publicado a ${Math.round(metros / 10) * 10} m del lugar`
+      : `Publicado a ${(metros / 1000).toFixed(1).replace('.', ',')} km del lugar`;
+  return (
+    <Text style={metros >= DISTANCIA_LLAMATIVA_M ? estilosDeDistancia.lejos : estilosDeDistancia.normal}>{texto}</Text>
+  );
+}
+
+const estilosDeDistancia = StyleSheet.create({
+  normal: {
+    fontSize: 14,
+    color: colores.textoSuave,
+  },
+  lejos: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: colores.aviso,
+  },
+});

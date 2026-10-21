@@ -20,6 +20,7 @@ import { SelectorDeFecha } from '../components/SelectorDeFecha';
 import { Coordenada, SelectorDeUbicacion } from '../components/SelectorDeUbicacion';
 import { aFechaDelBackend } from '../utils/fechas';
 import { colores } from '../utils/tema';
+import { distanciaDesdeElTelefono } from '../utils/useMiUbicacion';
 import { obtenerZona } from '../utils/zona';
 
 const LARGO_MINIMO = 10;
@@ -64,6 +65,7 @@ export function PublicarScreen() {
         longitud,
         // calle y altura aproximada del pin
         zona: await obtenerZona(latitud, longitud),
+        distanciaAlLugarM: await distanciaDesdeElTelefono({ latitud, longitud }),
         fechaHoraIncidente: aFechaDelBackend(fecha > limite ? limite : fecha),
       });
       setDescripcion('');
