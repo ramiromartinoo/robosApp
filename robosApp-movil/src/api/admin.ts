@@ -5,8 +5,8 @@ import { pedir } from './cliente';
 import { Sugerencia } from './sugerencias';
 import { Categoria, MotivoDenuncia, Pagina, PuntoHeatmap } from './tipos';
 
-// Las listas del panel piden una sola página grande, que alcanza para el volumen de una beta
-const TAMANIO = 50;
+// Tamaño de cada página de las listas del panel (se piden más con "Cargar más")
+const TAMANIO = 20;
 
 export type EstadoDeUsuario = 'ACTIVO' | 'SUSPENDIDO' | 'BANEADO';
 export type EstadoDePosteo = 'ACTIVO' | 'EN_REVISION' | 'ELIMINADO';
@@ -63,8 +63,8 @@ export type Estadisticas = {
 // --- Denuncias ---
 
 // Primero los posteos más denunciados
-export function obtenerDenunciasPendientes(): Promise<Pagina<DenunciasDePosteo>> {
-  return pedir(`/admin/denuncias?page=0&size=${TAMANIO}`);
+export function obtenerDenunciasPendientes(pagina = 0): Promise<Pagina<DenunciasDePosteo>> {
+  return pedir(`/admin/denuncias?page=${pagina}&size=${TAMANIO}`);
 }
 
 // Resuelve de una vez todas las denuncias pendientes de ese posteo
@@ -77,11 +77,11 @@ export function resolverDenuncias(posteoId: number, resolucion: Resolucion): Pro
 
 // --- Reportes ---
 
-export function obtenerReportes(filtros: {
-  estado: EstadoDePosteo | null;
-  usuarioId: number | null;
-}): Promise<Pagina<PosteoAdmin>> {
-  let ruta = `/admin/reportes?page=0&size=${TAMANIO}`;
+export function obtenerReportes(
+  filtros: { estado: EstadoDePosteo | null; usuarioId: number | null },
+  pagina = 0,
+): Promise<Pagina<PosteoAdmin>> {
+  let ruta = `/admin/reportes?page=${pagina}&size=${TAMANIO}`;
   if (filtros.estado) {
     ruta += `&estado=${filtros.estado}`;
   }
@@ -97,8 +97,8 @@ export function eliminarReporteComoAdmin(posteoId: number): Promise<void> {
 
 // --- Usuarios ---
 
-export function obtenerUsuarios(): Promise<Pagina<UsuarioAdmin>> {
-  return pedir(`/admin/usuarios?page=0&size=${TAMANIO}`);
+export function obtenerUsuarios(pagina = 0): Promise<Pagina<UsuarioAdmin>> {
+  return pedir(`/admin/usuarios?page=${pagina}&size=${TAMANIO}`);
 }
 
 export function cambiarEstadoDeUsuario(usuarioId: number, estado: EstadoDeUsuario): Promise<UsuarioAdmin> {
@@ -112,8 +112,8 @@ export function eliminarUsuario(usuarioId: number): Promise<void> {
 
 // --- Sugerencias ---
 
-export function obtenerSugerencias(soloPendientes: boolean): Promise<Pagina<Sugerencia>> {
-  return pedir(`/admin/sugerencias?page=0&size=${TAMANIO}${soloPendientes ? '&estado=PENDIENTE' : ''}`);
+export function obtenerSugerencias(soloPendientes: boolean, pagina = 0): Promise<Pagina<Sugerencia>> {
+  return pedir(`/admin/sugerencias?page=${pagina}&size=${TAMANIO}${soloPendientes ? '&estado=PENDIENTE' : ''}`);
 }
 
 export function responderSugerencia(sugerenciaId: number, respuesta: string): Promise<Sugerencia> {

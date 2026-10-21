@@ -269,3 +269,29 @@ const estilosDeDistancia = StyleSheet.create({
     color: colores.aviso,
   },
 });
+
+// Al pie de una lista paginada: trae la página siguiente. No se muestra si ya no hay más.
+export function BotonCargarMas({
+  hayMas,
+  cargando,
+  onPress,
+}: {
+  hayMas: boolean;
+  cargando: boolean;
+  onPress: () => void;
+}) {
+  if (!hayMas) {
+    return null;
+  }
+  return cargando ? (
+    <ActivityIndicator style={estilosDeCargarMas.cargando} color={colores.primario} />
+  ) : (
+    <Boton texto="Cargar más" icono="chevron-down" onPress={onPress} />
+  );
+}
+
+const estilosDeCargarMas = StyleSheet.create({
+  cargando: {
+    marginVertical: 14,
+  },
+});

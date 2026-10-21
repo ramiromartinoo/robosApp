@@ -4,10 +4,18 @@ import { KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, View } fro
 import { obtenerSugerencias, responderSugerencia } from '../../api/admin';
 import { mensajeDeError } from '../../api/cliente';
 import { Sugerencia } from '../../api/sugerencias';
-import { Boton, EstadoDeLista, Etiqueta, Filtros, PantallaConLista, Tarjeta } from '../../components/admin/Comunes';
+import {
+  Boton,
+  BotonCargarMas,
+  EstadoDeLista,
+  Etiqueta,
+  Filtros,
+  PantallaConLista,
+  Tarjeta,
+} from '../../components/admin/Comunes';
 import { haceCuanto } from '../../utils/fechas';
 import { colores } from '../../utils/tema';
-import { useCarga } from '../../utils/useCarga';
+import { usePaginado } from '../../utils/usePaginado';
 
 const LARGO_MAXIMO = 500;
 
@@ -19,21 +27,26 @@ const FILTROS = [
 // Sugerencias de los usuarios, con un cuadro para responder cada una
 export function AdminSugerenciasScreen() {
   const [filtro, setFiltro] = useState('pendientes');
-  const pedir = useCallback(() => obtenerSugerencias(filtro === 'pendientes'), [filtro]);
-  const { datos, setDatos, cargando, error, recargar, refrescando, refrescar } = useCarga(pedir);
-  const lista = datos?.contenido ?? [];
+  const pedir = useCallback((pagina: number) => obtenerSugerencias(filtro === 'pendientes', pagina), [filtro]);
+  const {
+    items: lista,
+    setItems,
+    cargando,
+    cargandoMas,
+    error,
+    hayMas,
+    cargarMas,
+    recargar,
+    refrescando,
+    refrescar,
+  } = usePaginado(pedir);
 
   const alResponder = (respondida: Sugerencia) => {
-    setDatos(
-      (actual) =>
-        actual && {
-          ...actual,
-          contenido:
-            filtro === 'pendientes'
-              ? // ya no está pendiente: sale de esta vista
-                actual.contenido.filter((otra) => otra.id !== respondida.id)
-              : actual.contenido.map((otra) => (otra.id === respondida.id ? respondida : otra)),
-        },
+    setItems((actuales) =>
+      filtro === 'pendientes'
+        ? // ya no está pendiente: sale de esta vista
+          actuales.filter((otra) => otra.id !== respondida.id)
+        : actuales.map((otra) => (otra.id === respondida.id ? respondida : otra)),
     );
   };
 
@@ -55,6 +68,7 @@ export function AdminSugerenciasScreen() {
           lista.map((sugerencia) => (
             <TarjetaDeSugerencia key={sugerencia.id} sugerencia={sugerencia} onRespondida={alResponder} />
           ))}
+        {!error && <BotonCargarMas hayMas={hayMas} cargando={cargandoMas} onPress={cargarMas} />}
       </PantallaConLista>
     </KeyboardAvoidingView>
   );

@@ -17,7 +17,7 @@ export function enviarSugerencia(texto: string): Promise<Sugerencia> {
   return pedir<Sugerencia>('/sugerencias', { method: 'POST', body: JSON.stringify({ texto }) });
 }
 
-// Las del usuario, de la más nueva a la más vieja
-export function obtenerMisSugerencias(): Promise<Pagina<Sugerencia>> {
-  return pedir<Pagina<Sugerencia>>('/sugerencias/mias?page=0&size=50');
+// Las del usuario, de la más nueva a la más vieja, de a 20
+export function obtenerMisSugerencias(pagina = 0): Promise<Pagina<Sugerencia>> {
+  return pedir<Pagina<Sugerencia>>(`/sugerencias/mias?page=${pagina}&size=20`);
 }

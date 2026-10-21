@@ -1,6 +1,5 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useRouter } from 'expo-router';
 import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { ErrorDeApi } from '../api/cliente';
@@ -9,40 +8,24 @@ import { MiReporte } from '../api/tipos';
 import { CATEGORIAS } from '../utils/categorias';
 import { haceCuanto } from '../utils/fechas';
 import { colores, sombra } from '../utils/tema';
+import { usePaginado } from '../utils/usePaginado';
 
 const mensajeDe = (e: unknown) => (e instanceof ErrorDeApi ? e.message : 'Ocurrió un error inesperado');
 
 export function MisReportesScreen() {
   const router = useRouter();
-  const [reportes, setReportes] = useState<MiReporte[]>([]);
-  const [cargando, setCargando] = useState(true);
-  const [refrescando, setRefrescando] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const cargar = useCallback(async () => {
-    try {
-      const pagina = await obtenerMisReportes();
-      setReportes(pagina.contenido);
-      setError(null);
-    } catch (e) {
-      setError(mensajeDe(e));
-    } finally {
-      setCargando(false);
-    }
-  }, []);
-
-  // se recarga al entrar y al volver de editar
-  useFocusEffect(
-    useCallback(() => {
-      cargar();
-    }, [cargar]),
-  );
-
-  const refrescar = async () => {
-    setRefrescando(true);
-    await cargar();
-    setRefrescando(false);
-  };
+  // se carga de a páginas (la siguiente al llegar al final) y se recarga al entrar y al volver de editar
+  const {
+    items: reportes,
+    setItems: setReportes,
+    cargando,
+    cargandoMas,
+    error,
+    cargarMas,
+    recargar,
+    refrescando,
+    refrescar,
+  } = usePaginado(obtenerMisReportes);
 
   const editar = (reporte: MiReporte) => {
     router.push({
@@ -79,7 +62,7 @@ export function MisReportesScreen() {
       {error && (
         <View style={styles.error}>
           <Text style={styles.errorTexto}>{error}</Text>
-          <Pressable style={styles.reintentar} onPress={cargar}>
+          <Pressable style={styles.reintentar} onPress={recargar}>
             <Text style={styles.reintentarTexto}>Reintentar</Text>
           </Pressable>
         </View>
@@ -94,6 +77,10 @@ export function MisReportesScreen() {
         contentContainerStyle={styles.lista}
         refreshing={refrescando}
         onRefresh={refrescar}
+        // scroll infinito: pide la página siguiente al acercarse al final
+        onEndReached={cargarMas}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={cargandoMas ? <ActivityIndicator style={styles.cargando} color={colores.primario} /> : null}
         ListEmptyComponent={
           cargando ? (
             <ActivityIndicator style={styles.cargando} color={colores.primario} />

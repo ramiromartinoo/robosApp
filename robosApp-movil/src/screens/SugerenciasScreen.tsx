@@ -1,5 +1,5 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -15,8 +15,10 @@ import {
 
 import { ErrorDeApi } from '../api/cliente';
 import { enviarSugerencia, obtenerMisSugerencias, Sugerencia } from '../api/sugerencias';
+import { BotonCargarMas } from '../components/admin/Comunes';
 import { haceCuanto } from '../utils/fechas';
 import { colores, sombra } from '../utils/tema';
+import { usePaginado } from '../utils/usePaginado';
 
 const LARGO_MAXIMO = 500;
 
@@ -35,32 +37,19 @@ export function SugerenciasScreen() {
   const [enviada, setEnviada] = useState(false);
   const [errorAlEnviar, setErrorAlEnviar] = useState<string | null>(null);
 
-  const [sugerencias, setSugerencias] = useState<Sugerencia[]>([]);
-  const [cargando, setCargando] = useState(true);
-  const [refrescando, setRefrescando] = useState(false);
-  const [errorAlCargar, setErrorAlCargar] = useState<string | null>(null);
-
-  const cargar = useCallback(async () => {
-    try {
-      const pagina = await obtenerMisSugerencias();
-      setSugerencias(pagina.contenido);
-      setErrorAlCargar(null);
-    } catch (e) {
-      setErrorAlCargar(mensajeDe(e));
-    } finally {
-      setCargando(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    cargar();
-  }, [cargar]);
-
-  const refrescar = async () => {
-    setRefrescando(true);
-    await cargar();
-    setRefrescando(false);
-  };
+  // las anteriores se cargan de a páginas, con "Cargar más" al final
+  const {
+    items: sugerencias,
+    setItems: setSugerencias,
+    cargando,
+    cargandoMas,
+    error: errorAlCargar,
+    hayMas,
+    cargarMas,
+    recargar: cargar,
+    refrescando,
+    refrescar,
+  } = usePaginado(obtenerMisSugerencias);
 
   const enviar = async () => {
     if (texto.trim().length === 0 || enviando) {
@@ -143,6 +132,9 @@ export function SugerenciasScreen() {
           <Text style={styles.vacio}>Todavía no enviaste ninguna.</Text>
         ) : (
           sugerencias.map((sugerencia) => <TarjetaDeSugerencia key={sugerencia.id} sugerencia={sugerencia} />)
+        )}
+        {!errorAlCargar && (
+          <BotonCargarMas hayMas={hayMas} cargando={cargandoMas} onPress={cargarMas} />
         )}
       </ScrollView>
     </KeyboardAvoidingView>
