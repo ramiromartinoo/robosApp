@@ -66,6 +66,22 @@ class PublicacionesTest extends PruebaDeIntegracion {
 	}
 
 	@Test
+	@DisplayName("Se puede publicar y filtrar un robo a comercio")
+	void roboAComercio() throws Exception {
+		pedirConJson(post("/reportes"), CLIENTE, """
+				{"descripcion":"Asaltaron un kiosco","categoria":"ROBO_COMERCIO",
+				 "latitud":-38.0,"longitud":-57.55,"fechaHoraIncidente":"%s"}
+				""".formatted(fechaDeHaceUnRato()))
+				.andExpect(status().isCreated());
+		publicar(CLIENTE);
+
+		pedir(get("/reportes").param("categoria", "ROBO_COMERCIO"), CLIENTE_2)
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.totalElementos").value(1))
+				.andExpect(jsonPath("$.contenido[0].categoria").value("ROBO_COMERCIO"));
+	}
+
+	@Test
 	@DisplayName("Un reporte con datos inválidos se rechaza con 400 y dice qué campo está mal")
 	void datosInvalidos() throws Exception {
 		pedirConJson(post("/reportes"), CLIENTE, """

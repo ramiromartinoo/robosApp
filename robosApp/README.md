@@ -162,7 +162,7 @@ Dentro de `src/main/java/com/proyectApp/robosApp/`:
 
 ## Pendientes conocidos
 
-- Las bases creadas antes de Flyway conservan unas restricciones `CHECK` sobre los enums: en esas bases, agregar un valor nuevo (por ejemplo, otra categoría) obliga a quitarlas con una migración. Las bases nuevas no las tienen.
+- Las bases creadas antes de Flyway tenían unas restricciones `CHECK` sobre los enums que rechazaban cualquier valor nuevo. La migración V3 las quita (en las bases nuevas no hace nada), así que agregar un valor a un enum ya no necesita migración.
 - Las notificaciones push no están implementadas.
 
 ## Ramas
