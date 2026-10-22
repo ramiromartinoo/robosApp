@@ -5,6 +5,7 @@ import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, View }
 import { ErrorDeApi } from '../api/cliente';
 import { denunciar, obtenerFeed, quitarVoto, votar } from '../api/reportes';
 import { Categoria, MotivoDenuncia, Posteo, TipoConfirmacion } from '../api/tipos';
+import { EstadoVacio } from '../components/EstadoVacio';
 import { FiltrosDelFeed } from '../components/FiltrosDelFeed';
 import { ItemPosteo } from '../components/ItemPosteo';
 import { ModalDenuncia } from '../components/ModalDenuncia';
@@ -192,15 +193,31 @@ export function FeedScreen() {
         onRefresh={refrescar}
         ListEmptyComponent={
           !cargando && !error ? (
-            <Text style={styles.vacio}>
-              {categoria !== null || radioKm !== null
-                ? 'No hay reportes con estos filtros.'
-                : 'Todavía no hay reportes.'}
-            </Text>
+            categoria !== null || radioKm !== null ? (
+              <EstadoVacio
+                icono="funnel-outline"
+                titulo="No hay reportes con estos filtros"
+                texto="Probá con una distancia mayor o con otro tipo de hecho."
+                accion={{
+                  texto: 'Quitar filtros',
+                  onPress: () => {
+                    setCategoria(null);
+                    setRadioKm(null);
+                  },
+                }}
+              />
+            ) : (
+              <EstadoVacio
+                icono="shield-checkmark-outline"
+                titulo="Todavía no hay reportes"
+                texto="Cuando un vecino reporte algo, lo vas a ver acá."
+                accion={{ texto: 'Hacer un reporte', onPress: () => router.push('/publicar') }}
+              />
+            )
           ) : null
         }
         ListFooterComponent={
-          cargando && !refrescando ? <ActivityIndicator style={styles.cargando} color={colores.primario} /> : null
+          cargando && !refrescando ? <ActivityIndicator style={styles.cargando} color={colores.primarioTexto} /> : null
         }
       />
 
@@ -219,12 +236,6 @@ const styles = StyleSheet.create({
     padding: 14,
     paddingBottom: 28,
     gap: 14,
-  },
-  vacio: {
-    textAlign: 'center',
-    color: colores.textoSuave,
-    fontSize: 16,
-    marginTop: 48,
   },
   cargando: {
     marginVertical: 24,

@@ -5,6 +5,7 @@ import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, View }
 import { ErrorDeApi } from '../api/cliente';
 import { eliminarReporte, obtenerMisReportes } from '../api/reportes';
 import { MiReporte } from '../api/tipos';
+import { EstadoVacio } from '../components/EstadoVacio';
 import { CATEGORIAS } from '../utils/categorias';
 import { haceCuanto } from '../utils/fechas';
 import { colores, sombra } from '../utils/tema';
@@ -80,12 +81,17 @@ export function MisReportesScreen() {
         // scroll infinito: pide la página siguiente al acercarse al final
         onEndReached={cargarMas}
         onEndReachedThreshold={0.5}
-        ListFooterComponent={cargandoMas ? <ActivityIndicator style={styles.cargando} color={colores.primario} /> : null}
+        ListFooterComponent={cargandoMas ? <ActivityIndicator style={styles.cargando} color={colores.primarioTexto} /> : null}
         ListEmptyComponent={
           cargando ? (
-            <ActivityIndicator style={styles.cargando} color={colores.primario} />
+            <ActivityIndicator style={styles.cargando} color={colores.primarioTexto} />
           ) : !error ? (
-            <Text style={styles.vacio}>Todavía no publicaste ningún reporte.</Text>
+            <EstadoVacio
+              icono="document-text-outline"
+              titulo="Todavía no publicaste ningún reporte"
+              texto="Si viste un robo o algo sospechoso, avisales a tus vecinos."
+              accion={{ texto: 'Hacer un reporte', onPress: () => router.push('/publicar') }}
+            />
           ) : null
         }
       />
@@ -169,12 +175,6 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   cargando: {
-    marginTop: 48,
-  },
-  vacio: {
-    textAlign: 'center',
-    color: colores.textoSuave,
-    fontSize: 16,
     marginTop: 48,
   },
   error: {

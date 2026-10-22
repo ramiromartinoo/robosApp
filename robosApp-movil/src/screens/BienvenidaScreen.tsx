@@ -17,7 +17,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ErrorDeApi } from '../api/cliente';
 import { aceptarTerminos, obtenerTerminosVigentes, Terminos } from '../api/sesion';
 import { useSesion } from '../sesion/SesionContext';
-import { colores, sombra } from '../utils/tema';
+import { colores, esOscuro, sombra } from '../utils/tema';
 
 // cuánto puede faltar para el final y que igual cuente como leído hasta abajo
 const TOLERANCIA_PX = 24;
@@ -91,7 +91,7 @@ export function BienvenidaScreen() {
 
   return (
     <SafeAreaView style={styles.pantalla}>
-      <StatusBar style="dark" />
+      <StatusBar style={esOscuro ? 'light' : 'dark'} />
       <View style={styles.tarjeta}>
         <View style={styles.logo}>
           {/* el mismo radar del ícono de la app (blanco sobre transparente) */}
@@ -138,7 +138,7 @@ export function BienvenidaScreen() {
             </View>
           ) : (
             <View style={styles.centrado}>
-              <ActivityIndicator color={colores.primario} />
+              <ActivityIndicator color={colores.primarioTexto} />
             </View>
           )}
         </View>

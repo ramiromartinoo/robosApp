@@ -138,7 +138,7 @@ export function AdminUsuariosScreen() {
 
               <View style={styles.etiquetas}>
                 <Etiqueta texto={estado.nombre} color={estado.color} fondo={estado.fondo} />
-                {esAdmin && <Etiqueta texto="Administrador" color={colores.primario} fondo={colores.primarioSuave} />}
+                {esAdmin && <Etiqueta texto="Administrador" color={colores.primarioTexto} fondo={colores.primarioSuave} />}
                 <EtiquetaDeConfianza nivel={usuario.confianza} />
                 {usuario.advertencias > 0 && (
                   <Etiqueta
@@ -298,7 +298,7 @@ const styles = StyleSheet.create({
   inicial: {
     fontSize: 18,
     fontWeight: '700',
-    color: colores.primario,
+    color: colores.primarioTexto,
   },
   datos: {
     flex: 1,

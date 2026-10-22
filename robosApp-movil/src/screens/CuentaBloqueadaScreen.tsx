@@ -5,7 +5,7 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-nati
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useSesion } from '../sesion/SesionContext';
-import { colores, sombra } from '../utils/tema';
+import { colores, esOscuro, sombra } from '../utils/tema';
 
 // Pantalla para una cuenta suspendida o baneada por un administrador. Reemplaza a toda la app:
 // el backend rechaza cualquier pedido de esa cuenta, así que no tendría sentido mostrar nada más.
@@ -23,7 +23,7 @@ export function CuentaBloqueadaScreen() {
 
   return (
     <SafeAreaView style={styles.pantalla}>
-      <StatusBar style="dark" />
+      <StatusBar style={esOscuro ? 'light' : 'dark'} />
       <View style={styles.tarjeta}>
         <View style={[styles.icono, baneada && styles.iconoBaneada]}>
           <Ionicons name={baneada ? 'ban-outline' : 'pause-circle-outline'} size={34} color={colores.textoSobreColor} />

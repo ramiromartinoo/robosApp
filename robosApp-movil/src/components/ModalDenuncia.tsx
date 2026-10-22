@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
   fondo: {
     flex: 1,
     justifyContent: 'flex-end',
-    backgroundColor: 'rgba(15, 23, 42, 0.5)',
+    backgroundColor: colores.velo,
   },
   hoja: {
     backgroundColor: colores.superficie,

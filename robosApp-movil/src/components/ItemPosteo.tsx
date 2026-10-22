@@ -100,11 +100,11 @@ export function ItemPosteo({
 
       {/* tocar abre el mapa con la zona aproximada del hecho */}
       <Pressable style={styles.ubicacion} onPress={onVerUbicacion} hitSlop={8}>
-        <Ionicons name="location-outline" size={18} color={colores.primario} />
+        <Ionicons name="location-outline" size={18} color={colores.primarioTexto} />
         <Text style={styles.ubicacionTexto} numberOfLines={1}>
           {dondeFue}
         </Text>
-        <Ionicons name="chevron-forward" size={16} color={colores.primario} />
+        <Ionicons name="chevron-forward" size={16} color={colores.primarioTexto} />
       </Pressable>
 
       <View style={[styles.estado, { backgroundColor: estado.fondo }]}>
@@ -117,7 +117,7 @@ export function ItemPosteo({
         <Pressable style={styles.propio} onPress={onVerMisReportes} hitSlop={8}>
           <Text style={styles.propioTexto}>Es tu reporte · </Text>
           <Text style={styles.propioEnlace}>Ver mis reportes</Text>
-          <Ionicons name="chevron-forward" size={15} color={colores.primario} />
+          <Ionicons name="chevron-forward" size={15} color={colores.primarioTexto} />
         </Pressable>
       ) : (
         <>
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
   inicial: {
     fontSize: 17,
     fontWeight: '700',
-    color: colores.primario,
+    color: colores.primarioTexto,
   },
   quien: {
     flex: 1,
@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     fontSize: 15,
     fontWeight: '600',
-    color: colores.primario,
+    color: colores.primarioTexto,
     textDecorationLine: 'underline',
   },
   estado: {
@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
   propioEnlace: {
     fontSize: 14,
     fontWeight: '700',
-    color: colores.primario,
+    color: colores.primarioTexto,
   },
   acciones: {
     flexDirection: 'row',

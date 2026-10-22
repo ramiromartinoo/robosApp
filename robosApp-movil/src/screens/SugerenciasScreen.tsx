@@ -16,6 +16,7 @@ import {
 import { ErrorDeApi } from '../api/cliente';
 import { enviarSugerencia, obtenerMisSugerencias, Sugerencia } from '../api/sugerencias';
 import { BotonCargarMas } from '../components/admin/Comunes';
+import { EstadoVacio } from '../components/EstadoVacio';
 import { haceCuanto } from '../utils/fechas';
 import { colores, sombra } from '../utils/tema';
 import { usePaginado } from '../utils/usePaginado';
@@ -77,7 +78,7 @@ export function SugerenciasScreen() {
       <ScrollView
         contentContainerStyle={styles.contenido}
         keyboardShouldPersistTaps="handled"
-        refreshControl={<RefreshControl refreshing={refrescando} onRefresh={refrescar} tintColor={colores.primario} />}>
+        refreshControl={<RefreshControl refreshing={refrescando} onRefresh={refrescar} tintColor={colores.primarioTexto} />}>
         <View style={styles.tarjeta}>
           <Text style={styles.titulo}>¿Cómo podemos mejorar la app?</Text>
           <Text style={styles.ayuda}>Contanos qué te gustaría que cambie o qué te está faltando.</Text>
@@ -120,7 +121,7 @@ export function SugerenciasScreen() {
         <Text style={styles.seccion}>Tus sugerencias</Text>
 
         {cargando ? (
-          <ActivityIndicator style={styles.cargando} color={colores.primario} />
+          <ActivityIndicator style={styles.cargando} color={colores.primarioTexto} />
         ) : errorAlCargar ? (
           <View style={styles.tarjeta}>
             <Text style={styles.error}>{errorAlCargar}</Text>
@@ -129,7 +130,11 @@ export function SugerenciasScreen() {
             </Pressable>
           </View>
         ) : sugerencias.length === 0 ? (
-          <Text style={styles.vacio}>Todavía no enviaste ninguna.</Text>
+          <EstadoVacio
+            icono="chatbubble-ellipses-outline"
+            titulo="Todavía no enviaste ninguna"
+            texto="Las respuestas de los administradores van a aparecer acá."
+          />
         ) : (
           sugerencias.map((sugerencia) => <TarjetaDeSugerencia key={sugerencia.id} sugerencia={sugerencia} />)
         )}
@@ -256,10 +261,6 @@ const styles = StyleSheet.create({
   cargando: {
     marginTop: 20,
   },
-  vacio: {
-    fontSize: 15,
-    color: colores.textoSuave,
-  },
   encabezado: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -294,7 +295,7 @@ const styles = StyleSheet.create({
   respuestaTitulo: {
     fontSize: 13,
     fontWeight: '700',
-    color: colores.primario,
+    color: colores.primarioTexto,
   },
   respuestaTexto: {
     fontSize: 16,
