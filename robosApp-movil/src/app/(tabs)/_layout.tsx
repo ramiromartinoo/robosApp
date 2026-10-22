@@ -11,7 +11,7 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: colores.primario,
+        tabBarActiveTintColor: colores.primarioTexto,
         tabBarInactiveTintColor: colores.textoSuave,
         tabBarLabelStyle: { fontSize: 13, fontWeight: '600' },
         tabBarStyle: { backgroundColor: colores.superficie, borderTopColor: colores.borde },
@@ -21,6 +21,7 @@ export default function TabLayout() {
         headerTitleStyle: { fontSize: 20, fontWeight: '700' },
         headerTitleAlign: 'center',
         headerShadowVisible: false,
+        sceneStyle: { backgroundColor: colores.fondo },
       }}>
       <Tabs.Screen
         name="index"

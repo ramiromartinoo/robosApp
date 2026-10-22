@@ -53,6 +53,8 @@ function Navegacion() {
         headerTitleStyle: { fontSize: 20, fontWeight: '700' },
         headerTitleAlign: 'center',
         headerBackTitle: 'Volver',
+        // sin esto, la navegación pinta de blanco el fondo durante las transiciones (se nota en el modo oscuro)
+        contentStyle: { backgroundColor: colores.fondo },
       }}>
       <Stack.Protected guard={puedeUsarLaApp}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
@@ -107,7 +109,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   reintentarTexto: {
-    color: colores.primario,
+    color: colores.primarioTexto,
     fontSize: 17,
     fontWeight: '700',
   },

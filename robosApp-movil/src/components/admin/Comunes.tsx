@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 
 import { colores, sombra } from '../../utils/tema';
+import { EstadoVacio } from '../EstadoVacio';
 
 type Icono = ComponentProps<typeof Ionicons>['name'];
 
@@ -33,7 +34,7 @@ export function PantallaConLista({
       style={styles.pantalla}
       contentContainerStyle={styles.contenido}
       keyboardShouldPersistTaps="handled"
-      refreshControl={<RefreshControl refreshing={refrescando} onRefresh={onRefrescar} tintColor={colores.primario} />}>
+      refreshControl={<RefreshControl refreshing={refrescando} onRefresh={onRefrescar} tintColor={colores.primarioTexto} />}>
       {children}
     </ScrollView>
   );
@@ -58,7 +59,7 @@ export function EstadoDeLista({
   onReintentar: () => void;
 }) {
   if (cargando) {
-    return <ActivityIndicator style={styles.cargando} color={colores.primario} />;
+    return <ActivityIndicator style={styles.cargando} color={colores.primarioTexto} />;
   }
   if (error) {
     return (
@@ -69,7 +70,7 @@ export function EstadoDeLista({
     );
   }
   if (vacia) {
-    return <Text style={styles.vacia}>{textoVacia}</Text>;
+    return <EstadoVacio icono="checkmark-done-outline" titulo={textoVacia} />;
   }
   return null;
 }
@@ -172,12 +173,6 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 10,
     overflow: 'hidden',
-  },
-  vacia: {
-    textAlign: 'center',
-    color: colores.textoSuave,
-    fontSize: 16,
-    marginTop: 40,
   },
   boton: {
     flexDirection: 'row',
@@ -284,7 +279,7 @@ export function BotonCargarMas({
     return null;
   }
   return cargando ? (
-    <ActivityIndicator style={estilosDeCargarMas.cargando} color={colores.primario} />
+    <ActivityIndicator style={estilosDeCargarMas.cargando} color={colores.primarioTexto} />
   ) : (
     <Boton texto="Cargar más" icono="chevron-down" onPress={onPress} />
   );

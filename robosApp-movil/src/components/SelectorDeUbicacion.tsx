@@ -154,7 +154,7 @@ export function SelectorDeUbicacion({ onCambio }: { onCambio: (coordenada: Coord
       {aviso && <Text style={styles.aviso}>{aviso}</Text>}
 
       <Pressable style={styles.boton} onPress={irAMiUbicacion} disabled={buscando !== null}>
-        <Ionicons name="locate" size={20} color={colores.primario} />
+        <Ionicons name="locate" size={20} color={colores.primarioTexto} />
         <Text style={styles.botonTexto}>Usar mi ubicación actual</Text>
       </Pressable>
     </View>
@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: 'rgba(15, 23, 42, 0.8)',
+    backgroundColor: colores.veloFuerte,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 999,
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   botonTexto: {
-    color: colores.primario,
+    color: colores.primarioTexto,
     fontSize: 16,
     fontWeight: '700',
   },

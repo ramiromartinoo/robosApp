@@ -5,7 +5,7 @@ import { Modal, Platform, Pressable, StyleSheet, Text, View } from 'react-native
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { fechaLegible } from '../utils/fechas';
-import { colores } from '../utils/tema';
+import { colores, esOscuro } from '../utils/tema';
 
 type Props = {
   fecha: Date;
@@ -59,7 +59,7 @@ export function SelectorDeFecha({ fecha, onCambio }: Props) {
   return (
     <>
       <Pressable style={styles.boton} onPress={abrir}>
-        <Ionicons name="time-outline" size={22} color={colores.primario} />
+        <Ionicons name="time-outline" size={22} color={colores.primarioTexto} />
         <Text style={styles.botonTexto}>{fechaLegible(fecha)}</Text>
         <Text style={styles.cambiar}>Cambiar</Text>
       </Pressable>
@@ -94,7 +94,7 @@ export function SelectorDeFecha({ fecha, onCambio }: Props) {
                 // "es-ES" y no "es-AR" a propósito: si coincide con la región del teléfono, iOS aplica la
                 // preferencia de 12/24 h del usuario; con otra región en español muestra siempre 24 h
                 locale="es-ES"
-                themeVariant="light"
+                themeVariant={esOscuro ? 'dark' : 'light'}
                 onChange={(_evento, elegida) => elegida && setProvisoria(elegida)}
               />
             </Pressable>
@@ -123,14 +123,14 @@ const styles = StyleSheet.create({
     fontSize: 17,
   },
   cambiar: {
-    color: colores.primario,
+    color: colores.primarioTexto,
     fontSize: 15,
     fontWeight: '600',
   },
   fondo: {
     flex: 1,
     justifyContent: 'flex-end',
-    backgroundColor: 'rgba(15, 23, 42, 0.5)',
+    backgroundColor: colores.velo,
   },
   hoja: {
     backgroundColor: colores.superficie,
@@ -156,6 +156,6 @@ const styles = StyleSheet.create({
   listo: {
     fontSize: 17,
     fontWeight: '700',
-    color: colores.primario,
+    color: colores.primarioTexto,
   },
 });

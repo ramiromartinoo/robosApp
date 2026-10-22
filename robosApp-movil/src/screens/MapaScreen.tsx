@@ -119,7 +119,7 @@ export function MapaScreen() {
 
       <View style={styles.abajo}>
         {cargando ? (
-          <ActivityIndicator color={colores.primario} />
+          <ActivityIndicator color={colores.primarioTexto} />
         ) : (
           <>
             <Text style={styles.total}>

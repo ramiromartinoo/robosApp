@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
   numero: {
     fontSize: 44,
     fontWeight: '800',
-    color: colores.primario,
+    color: colores.primarioTexto,
   },
   titulo: {
     fontSize: 18,

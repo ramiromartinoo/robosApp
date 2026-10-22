@@ -70,7 +70,7 @@ export function CuentaScreen() {
             onPress={() => router.push(opcion.ruta)}
             accessibilityRole="button">
             <View style={styles.icono}>
-              <Ionicons name={opcion.icono} size={22} color={colores.primario} />
+              <Ionicons name={opcion.icono} size={22} color={colores.primarioTexto} />
             </View>
             <View style={styles.textos}>
               <Text style={styles.titulo}>{opcion.titulo}</Text>
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
   inicial: {
     fontSize: 23,
     fontWeight: '700',
-    color: colores.primario,
+    color: colores.primarioTexto,
   },
   datos: {
     flex: 1,
@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
   rol: {
     fontSize: 13,
     fontWeight: '700',
-    color: colores.primario,
+    color: colores.primarioTexto,
     marginTop: 2,
   },
   menu: {

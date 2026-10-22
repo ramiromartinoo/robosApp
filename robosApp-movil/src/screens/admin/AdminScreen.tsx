@@ -76,7 +76,7 @@ export function AdminScreen() {
             onPress={() => router.push(seccion.ruta)}
             accessibilityRole="button">
             <View style={styles.icono}>
-              <Ionicons name={seccion.icono} size={22} color={colores.primario} />
+              <Ionicons name={seccion.icono} size={22} color={colores.primarioTexto} />
             </View>
             <View style={styles.textos}>
               <Text style={styles.titulo}>{seccion.titulo}</Text>

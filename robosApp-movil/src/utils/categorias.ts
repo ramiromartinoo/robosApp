@@ -2,6 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { ComponentProps } from 'react';
 
 import { Categoria } from '../api/tipos';
+import { esOscuro } from './tema';
 
 type InfoDeCategoria = {
   nombre: string;
@@ -9,10 +10,15 @@ type InfoDeCategoria = {
   nombreCorto: string;
   // color del texto de la etiqueta
   color: string;
-  // fondo clarito de la etiqueta
+  // fondo de la etiqueta: clarito en el modo claro, oscuro en el oscuro
   fondo: string;
   icono: ComponentProps<typeof Ionicons>['name'];
 };
+
+// En el modo oscuro el texto va en un tono claro y el fondo en uno oscuro del mismo color
+function tono(claro: string, oscuro: string): string {
+  return esOscuro ? oscuro : claro;
+}
 
 // Cómo se muestra cada categoría del backend.
 // ROBO_AUTO se presenta como "Robo de vehículo" para abarcar también motos y bicicletas:
@@ -21,28 +27,46 @@ export const CATEGORIAS: Record<Categoria, InfoDeCategoria> = {
   ROBO_AUTO: {
     nombre: 'Robo de vehículo',
     nombreCorto: 'Robo de vehículo',
-    color: '#1d5fa8',
-    fondo: '#dceafb',
+    color: tono('#1d5fa8', '#7fb3f0'),
+    fondo: tono('#dceafb', '#1a2d45'),
     icono: 'car-outline',
   },
-  HURTO: { nombre: 'Hurto', nombreCorto: 'Hurto', color: '#6d4bc3', fondo: '#e9e3fb', icono: 'bag-handle-outline' },
-  ARREBATO: { nombre: 'Arrebato', nombreCorto: 'Arrebato', color: '#c0392b', fondo: '#fde2e2', icono: 'flash-outline' },
+  HURTO: {
+    nombre: 'Hurto',
+    nombreCorto: 'Hurto',
+    color: tono('#6d4bc3', '#b9a3f5'),
+    fondo: tono('#e9e3fb', '#2a2245'),
+    icono: 'bag-handle-outline',
+  },
+  ARREBATO: {
+    nombre: 'Arrebato',
+    nombreCorto: 'Arrebato',
+    color: tono('#c0392b', '#f08a7e'),
+    fondo: tono('#fde2e2', '#3d1f1c'),
+    icono: 'flash-outline',
+  },
   ROBO_DOMICILIO: {
     nombre: 'Robo a domicilio',
     nombreCorto: 'Robo a domicilio',
-    color: '#b4530a',
-    fondo: '#fde9d3',
+    color: tono('#b4530a', '#f2a463'),
+    fondo: tono('#fde9d3', '#3d2814'),
     icono: 'home-outline',
   },
   ROBO_COMERCIO: {
     nombre: 'Robo a comercio',
     nombreCorto: 'Robo a comercio',
-    color: '#0e7c86',
-    fondo: '#d5f1f2',
+    color: tono('#0e7c86', '#6fd3dc'),
+    fondo: tono('#d5f1f2', '#143538'),
     icono: 'storefront-outline',
   },
   // ya no se ofrece al publicar ni al filtrar; queda para mostrar los reportes viejos que la tienen
-  OTRO: { nombre: 'Otro', nombreCorto: 'Otro', color: '#4a5f57', fondo: '#e3ece8', icono: 'ellipsis-horizontal' },
+  OTRO: {
+    nombre: 'Otro',
+    nombreCorto: 'Otro',
+    color: tono('#4a5f57', '#a9bdb5'),
+    fondo: tono('#e3ece8', '#26332e'),
+    icono: 'ellipsis-horizontal',
+  },
 };
 
 // Las que se pueden elegir al publicar, editar o filtrar, en el orden en que se muestran
