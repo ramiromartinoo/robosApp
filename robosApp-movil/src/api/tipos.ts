@@ -1,6 +1,6 @@
 // Formas de los datos que devuelve el backend (los DTO de Java)
 
-export type Categoria = 'ROBO_AUTO' | 'HURTO' | 'ARREBATO' | 'ROBO_DOMICILIO' | 'OTRO';
+export type Categoria = 'ROBO_AUTO' | 'HURTO' | 'ARREBATO' | 'ROBO_DOMICILIO' | 'ROBO_COMERCIO' | 'OTRO';
 
 export type TipoConfirmacion = 'CONFIRMA' | 'NIEGA';
 

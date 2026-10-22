@@ -101,7 +101,13 @@ public class DatosDeEjemplo {
 					"Bolívar al 3400, Centro", -38.0031, -57.5568, 8600, 0, 0),
 			new Ejemplo(3, Categoria.ROBO_DOMICILIO,
 					"Dos hombres con chaleco entraron a una casa diciendo que venían a revisar el gas y se llevaron dinero y un celular. No tenían identificación de ninguna empresa.",
-					"Av. Fortunato de la Plaza al 4500, Peralta Ramos Oeste", -38.0352, -57.5842, 9500, 3, 2));
+					"Av. Fortunato de la Plaza al 4500, Peralta Ramos Oeste", -38.0352, -57.5842, 9500, 3, 2),
+			new Ejemplo(4, Categoria.ROBO_COMERCIO,
+					"Entraron dos hombres armados a un kiosco y se llevaron la recaudación y cigarrillos. Uno de campera de jean y el otro de buzo bordó.",
+					"Av. Libertad al 3900, Libertad", -37.9890, -57.5620, 160, 4, 0),
+			new Ejemplo(5, Categoria.ROBO_COMERCIO,
+					"De madrugada rompieron la persiana de una verdulería y se llevaron la caja registradora. Lo vio un vecino desde el balcón.",
+					"Av. Juan B. Justo al 1500, San José", -38.0258, -57.5650, 3100, 2, 0));
 
 	// Qué reporte de la lista recibe denuncias de ejemplo, para que el panel admin tenga algo que resolver
 	private static final int EJEMPLO_DENUNCIADO = 8;

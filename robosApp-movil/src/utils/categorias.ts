@@ -34,9 +34,16 @@ export const CATEGORIAS: Record<Categoria, InfoDeCategoria> = {
     fondo: '#fde9d3',
     icono: 'home-outline',
   },
+  ROBO_COMERCIO: {
+    nombre: 'Robo a comercio',
+    nombreCorto: 'Robo a comercio',
+    color: '#0e7c86',
+    fondo: '#d5f1f2',
+    icono: 'storefront-outline',
+  },
   // ya no se ofrece al publicar ni al filtrar; queda para mostrar los reportes viejos que la tienen
   OTRO: { nombre: 'Otro', nombreCorto: 'Otro', color: '#4a5f57', fondo: '#e3ece8', icono: 'ellipsis-horizontal' },
 };
 
 // Las que se pueden elegir al publicar, editar o filtrar, en el orden en que se muestran
-export const LISTA_DE_CATEGORIAS: Categoria[] = ['ROBO_AUTO', 'HURTO', 'ARREBATO', 'ROBO_DOMICILIO'];
+export const LISTA_DE_CATEGORIAS: Categoria[] = ['ROBO_AUTO', 'HURTO', 'ARREBATO', 'ROBO_DOMICILIO', 'ROBO_COMERCIO'];
