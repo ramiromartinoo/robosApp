@@ -1,0 +1,15 @@
+# Lo que NO se copia al armar la imagen de Docker.
+# Lo más importante son los secretos: si se colaran, quedarían dentro de la imagen.
+src/main/resources/application-local.yaml
+*firebase*adminsdk*.json
+serviceAccountKey.json
+.env
+
+# Lo que se genera o no hace falta para compilar
+target/
+.idea/
+*.iml
+.mvn/
+mvnw
+mvnw.cmd
+HELP.md

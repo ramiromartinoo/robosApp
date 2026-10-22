@@ -1,3 +1,18 @@
+server:
+  # los hostings suelen indicar el puerto con la variable PORT; en la PC queda el 8080 de siempre
+  port: ${PORT:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        # solo el chequeo de salud: el resto de los endpoints de actuator expone datos internos
+        include: health
+  endpoint:
+    health:
+      # responde solo {"status":"UP"}, sin detalles de la base ni del disco
+      show-details: never
+
 spring:
   config:
     # Secretos locales (no se commitea). Ver application-local.yaml.example

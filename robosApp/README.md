@@ -126,7 +126,11 @@ En un servidor se arranca con el perfil `prod` y la configuración por variables
 |---|---|
 | `SPRING_PROFILES_ACTIVE=prod` | Activa la configuración de producción (`application-prod.yaml`). |
 | `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` | La base de datos. |
-| `ROBOSAPP_FIREBASE_CREDENCIALES` | Ruta a la clave de servicio de Firebase. |
+| `ROBOSAPP_FIREBASE_CREDENCIALES_JSON` | Contenido de la clave de servicio de Firebase (en los hostings que solo aceptan variables). |
+| `ROBOSAPP_FIREBASE_CREDENCIALES` | O, en su lugar, la ruta al archivo de la clave. |
+| `PORT` | Puerto (los hostings lo definen solos; si no, 8080). |
+
+Cómo subirlo paso a paso (Render + Aiven gratis, o un servidor propio con Docker): ver [DESPLIEGUE.md](DESPLIEGUE.md).
 
 Con ese perfil los tokens de prueba quedan apagados, la IP real del usuario se toma del proxy del hosting, y la aplicación **se niega a arrancar** si detecta los tokens de prueba activados o le falta Firebase.
 
