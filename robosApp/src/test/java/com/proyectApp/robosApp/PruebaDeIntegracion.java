@@ -49,7 +49,8 @@ public abstract class PruebaDeIntegracion {
 		jdbc.update("delete from posteos");
 		jdbc.update("delete from sugerencias");
 		jdbc.update("delete from aceptacion_terminos");
-		jdbc.update("update usuarios set estado = 'ACTIVO', advertencias = 0");
+		// todas las cuentas de prueba activas, sin sanciones y recién registradas
+		jdbc.update("update usuarios set estado = 'ACTIVO', advertencias = 0, fecha_registro = now()");
 		for (String cliente : List.of(CLIENTE, CLIENTE_2, CLIENTE_3)) {
 			aceptarTerminos(cliente);
 		}

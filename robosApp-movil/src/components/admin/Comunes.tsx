@@ -295,3 +295,18 @@ const estilosDeCargarMas = StyleSheet.create({
     marginVertical: 14,
   },
 });
+
+// Reputación de un usuario en el panel. NORMAL no lleva etiqueta.
+const NIVELES: Record<'NUEVO' | 'CONFIABLE' | 'DUDOSO', { texto: string; color: string; fondo: string }> = {
+  NUEVO: { texto: 'Cuenta nueva', color: colores.textoSuave, fondo: colores.borde },
+  CONFIABLE: { texto: 'Confiable', color: colores.confirmar, fondo: colores.confirmarSuave },
+  DUDOSO: { texto: 'Reportes cuestionados', color: colores.aviso, fondo: colores.avisoSuave },
+};
+
+export function EtiquetaDeConfianza({ nivel }: { nivel: 'NUEVO' | 'NORMAL' | 'CONFIABLE' | 'DUDOSO' }) {
+  if (nivel === 'NORMAL') {
+    return null;
+  }
+  const { texto, color, fondo } = NIVELES[nivel];
+  return <Etiqueta texto={texto} color={color} fondo={fondo} />;
+}

@@ -23,6 +23,7 @@ import com.proyectApp.robosApp.dto.PosteoResponse;
 import com.proyectApp.robosApp.dto.PuntoHeatmapResponse;
 import com.proyectApp.robosApp.entity.Categoria;
 import com.proyectApp.robosApp.entity.EstadoPosteo;
+import com.proyectApp.robosApp.entity.NivelDeConfianza;
 import com.proyectApp.robosApp.entity.Posteo;
 import com.proyectApp.robosApp.entity.TipoConfirmacion;
 import com.proyectApp.robosApp.entity.Usuario;
@@ -34,6 +35,7 @@ import com.proyectApp.robosApp.exception.RecursoNoEncontradoException;
 import com.proyectApp.robosApp.repository.ConfirmacionRepository;
 import com.proyectApp.robosApp.repository.ConteoConfirmaciones;
 import com.proyectApp.robosApp.repository.PosteoRepository;
+import com.proyectApp.robosApp.service.ReputacionService.Reputacion;
 
 @Service
 public class PosteoService {
@@ -50,16 +52,18 @@ public class PosteoService {
 	private final PosteoRepository posteoRepository;
 	private final ConfirmacionRepository confirmacionRepository;
 	private final UsuarioActualService usuarioActualService;
+	private final ReputacionService reputacionService;
 	private final int maximoPorHora;
 	private final int minutosParaEditar;
 
 	public PosteoService(PosteoRepository posteoRepository, ConfirmacionRepository confirmacionRepository,
-			UsuarioActualService usuarioActualService,
+			UsuarioActualService usuarioActualService, ReputacionService reputacionService,
 			@Value("${robosapp.posteos.maximo-por-hora:5}") int maximoPorHora,
 			@Value("${robosapp.posteos.minutos-para-editar:10}") int minutosParaEditar) {
 		this.posteoRepository = posteoRepository;
 		this.confirmacionRepository = confirmacionRepository;
 		this.usuarioActualService = usuarioActualService;
+		this.reputacionService = reputacionService;
 		this.maximoPorHora = maximoPorHora;
 		this.minutosParaEditar = minutosParaEditar;
 	}
@@ -82,7 +86,10 @@ public class PosteoService {
 		posteo.setIpPublicacion(ip);
 		posteo.setDispositivoId(dispositivoValido(dispositivo));
 		posteo.setDistanciaAlLugarM(request.distanciaAlLugarM());
-		return PosteoResponse.desde(posteoRepository.save(posteo), 0, 0, null, true);
+		Posteo guardado = posteoRepository.save(posteo);
+		NivelDeConfianza confianza = reputacionService.deUsuarios(List.of(usuario.getId()))
+				.get(usuario.getId()).nivelPublico();
+		return PosteoResponse.desde(guardado, 0, 0, null, true, confianza);
 	}
 
 	// Los posteos del usuario actual, incluidos los que están en revisión (los eliminados no)
@@ -191,7 +198,7 @@ public class PosteoService {
 	}
 
 	// Suma a cada posteo cuántos lo confirmaron y cuántos lo negaron, y qué votó el usuario actual.
-	// Son dos consultas para toda la lista, no dos por posteo.
+	// También la reputación de cada autor. Son pocas consultas para toda la lista, no varias por posteo.
 	private List<PosteoResponse> conConteos(List<Posteo> posteos) {
 		if (posteos.isEmpty()) {
 			return List.of();
@@ -203,6 +210,8 @@ public class PosteoService {
 		Map<Long, TipoConfirmacion> misVotos = new HashMap<>();
 		confirmacionRepository.votosDelUsuario(usuarioId, ids)
 				.forEach(voto -> misVotos.put(voto.getPosteo().getId(), voto.getTipo()));
+		Map<Long, Reputacion> reputaciones = reputacionService
+				.deUsuarios(posteos.stream().map(posteo -> posteo.getUsuario().getId()).distinct().toList());
 
 		return posteos.stream().map(posteo -> {
 			Map<TipoConfirmacion, Long> delPosteo = conteos.getOrDefault(posteo.getId(), Map.of());
@@ -210,7 +219,8 @@ public class PosteoService {
 					delPosteo.getOrDefault(TipoConfirmacion.CONFIRMA, 0L),
 					delPosteo.getOrDefault(TipoConfirmacion.NIEGA, 0L),
 					misVotos.get(posteo.getId()),
-					posteo.getUsuario().getId().equals(usuarioId));
+					posteo.getUsuario().getId().equals(usuarioId),
+					reputaciones.get(posteo.getUsuario().getId()).nivelPublico());
 		}).toList();
 	}
 

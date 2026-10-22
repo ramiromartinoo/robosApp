@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import com.proyectApp.robosApp.entity.Categoria;
 import com.proyectApp.robosApp.entity.EstadoPosteo;
+import com.proyectApp.robosApp.entity.NivelDeConfianza;
 import com.proyectApp.robosApp.entity.Posteo;
 
 // Vista de un posteo para el panel admin: suma el estado y quién lo publicó.
@@ -21,9 +22,11 @@ public record AdminPosteoResponse(
 		String autor,
 		// metros entre el teléfono del autor y el lugar al publicar (null si no se conocía).
 		// Una distancia muy grande no prueba nada, pero ayuda a evaluar un reporte denunciado.
-		Integer distanciaAlLugarM) {
+		Integer distanciaAlLugarM,
+		// reputación del autor, incluido DUDOSO (el panel sí lo ve)
+		NivelDeConfianza autorConfianza) {
 
-	public static AdminPosteoResponse desde(Posteo posteo) {
+	public static AdminPosteoResponse desde(Posteo posteo, NivelDeConfianza autorConfianza) {
 		return new AdminPosteoResponse(
 				posteo.getId(),
 				posteo.getDescripcion(),
@@ -35,7 +38,8 @@ public record AdminPosteoResponse(
 				posteo.getEstado(),
 				posteo.getUsuario().getId(),
 				posteo.getUsuario().getNombreVisible(),
-				posteo.getDistanciaAlLugarM());
+				posteo.getDistanciaAlLugarM(),
+				autorConfianza);
 	}
 
 }

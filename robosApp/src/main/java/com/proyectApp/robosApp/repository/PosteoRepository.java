@@ -1,6 +1,7 @@
 package com.proyectApp.robosApp.repository;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -79,6 +80,16 @@ public interface PosteoRepository extends JpaRepository<Posteo, Long> {
 			  and suyo.usuario.id <> :usuarioId
 			""")
 	List<Usuario> cuentasConLaMismaConexion(@Param("usuarioId") Long usuarioId);
+
+	// Reputación: cuántos reportes vigentes (no eliminados) tiene cada usuario
+	@Query("""
+			select new com.proyectApp.robosApp.repository.ConteoPorUsuario(p.usuario.id, count(p))
+			from Posteo p
+			where p.usuario.id in :usuarioIds and p.estado <> :excluido
+			group by p.usuario.id
+			""")
+	List<ConteoPorUsuario> contarReportesPorUsuario(@Param("usuarioIds") Collection<Long> usuarioIds,
+			@Param("excluido") EstadoPosteo excluido);
 
 	// Para el límite de publicaciones por hora
 	long countByUsuarioIdAndFechaHoraPublicacionAfter(Long usuarioId, LocalDateTime desde);

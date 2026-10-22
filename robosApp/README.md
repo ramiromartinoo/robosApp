@@ -102,6 +102,7 @@ Los errores vuelven siempre con la misma forma: `{ "mensaje": "...", "errores": 
 - **Denuncias:** al llegar a 5 denuncias pendientes, el reporte se oculta del feed hasta que un administrador lo revise.
 - **Administradores:** el rol se asigna a mano en la base (`UPDATE usuarios SET rol = 'ADMIN' WHERE email = '...'`). No hay ninguna ruta que lo cambie.
 - **Antiabuso:** al publicar se guardan la IP, un identificador de la instalación de la app (encabezado `X-Dispositivo`) y la distancia entre el teléfono y el lugar. Nunca se devuelven en el feed. El panel los usa para mostrar la distancia de cada reporte y las cuentas que publicaron desde el mismo teléfono o la misma conexión (`GET /admin/usuarios/{id}/relacionadas`).
+- **Reputación:** cada usuario tiene un nivel (`NUEVO`, `NORMAL`, `CONFIABLE` o `DUDOSO`) que se calcula con las confirmaciones y negaciones que recibieron sus reportes, los reportes que le eliminó la moderación y sus advertencias (fórmula en `ReputacionService`, valores en `robosapp.reputacion`). El feed muestra "Vecino confiable" o "Cuenta nueva"; `DUDOSO` solo lo ve el administrador.
 
 ## Base de datos y migraciones
 

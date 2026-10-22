@@ -77,6 +77,19 @@ export function ItemPosteo({
           </Text>
           {/* la hora que importa es la del hecho, no la de publicación */}
           <Text style={styles.tiempo}>Ocurrió {haceCuanto(posteo.fechaHoraIncidente)}</Text>
+          {/* reputación del autor: ayuda a decidir cuánto confiar en el reporte */}
+          {posteo.autorConfianza === 'CONFIABLE' && (
+            <View style={styles.confianza}>
+              <Ionicons name="shield-checkmark" size={14} color={colores.confirmar} />
+              <Text style={[styles.confianzaTexto, { color: colores.confirmar }]}>Vecino confiable</Text>
+            </View>
+          )}
+          {posteo.autorConfianza === 'NUEVO' && (
+            <View style={styles.confianza}>
+              <Ionicons name="person-add-outline" size={14} color={colores.textoSuave} />
+              <Text style={[styles.confianzaTexto, { color: colores.textoSuave }]}>Cuenta nueva</Text>
+            </View>
+          )}
         </View>
         <View style={[styles.categoria, { backgroundColor: categoria.fondo }]}>
           <Text style={[styles.categoriaTexto, { color: categoria.color }]}>{categoria.nombre}</Text>
@@ -178,6 +191,16 @@ const styles = StyleSheet.create({
   tiempo: {
     fontSize: 14,
     color: colores.textoSuave,
+  },
+  confianza: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 2,
+  },
+  confianzaTexto: {
+    fontSize: 13,
+    fontWeight: '700',
   },
   categoria: {
     paddingHorizontal: 10,

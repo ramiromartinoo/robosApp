@@ -12,7 +12,15 @@ import {
   UsuarioAdmin,
 } from '../../api/admin';
 import { mensajeDeError } from '../../api/cliente';
-import { Boton, BotonCargarMas, EstadoDeLista, Etiqueta, PantallaConLista, Tarjeta } from '../../components/admin/Comunes';
+import {
+  Boton,
+  BotonCargarMas,
+  EstadoDeLista,
+  Etiqueta,
+  EtiquetaDeConfianza,
+  PantallaConLista,
+  Tarjeta,
+} from '../../components/admin/Comunes';
 import { haceCuanto } from '../../utils/fechas';
 import { colores } from '../../utils/tema';
 import { usePaginado } from '../../utils/usePaginado';
@@ -131,6 +139,7 @@ export function AdminUsuariosScreen() {
               <View style={styles.etiquetas}>
                 <Etiqueta texto={estado.nombre} color={estado.color} fondo={estado.fondo} />
                 {esAdmin && <Etiqueta texto="Administrador" color={colores.primario} fondo={colores.primarioSuave} />}
+                <EtiquetaDeConfianza nivel={usuario.confianza} />
                 {usuario.advertencias > 0 && (
                   <Etiqueta
                     texto={usuario.advertencias === 1 ? '1 advertencia' : `${usuario.advertencias} advertencias`}
@@ -140,7 +149,10 @@ export function AdminUsuariosScreen() {
                 )}
               </View>
 
-              <Text style={styles.detalle}>Se registró {haceCuanto(usuario.fechaRegistro)}</Text>
+              <Text style={styles.detalle}>
+                Se registró {haceCuanto(usuario.fechaRegistro)} · {usuario.puntosDeConfianza}{' '}
+                {Math.abs(usuario.puntosDeConfianza) === 1 ? 'punto' : 'puntos'} de confianza
+              </Text>
 
               <Boton
                 texto="Ver sus reportes"

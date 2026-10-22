@@ -11,6 +11,7 @@ const TAMANIO = 20;
 export type EstadoDeUsuario = 'ACTIVO' | 'SUSPENDIDO' | 'BANEADO';
 export type EstadoDePosteo = 'ACTIVO' | 'EN_REVISION' | 'ELIMINADO';
 export type Resolucion = 'ELIMINADO' | 'ADVERTENCIA' | 'DESCARTADA';
+export type NivelDeConfianza = 'NUEVO' | 'NORMAL' | 'CONFIABLE' | 'DUDOSO';
 
 export type UsuarioAdmin = {
   id: number;
@@ -19,6 +20,9 @@ export type UsuarioAdmin = {
   rol: 'CLIENTE' | 'ADMIN';
   estado: EstadoDeUsuario;
   advertencias: number;
+  // reputación (ver ReputacionService en el backend) y los puntos de los que sale
+  confianza: NivelDeConfianza;
+  puntosDeConfianza: number;
   fechaRegistro: string;
 };
 
@@ -35,6 +39,7 @@ export type PosteoAdmin = {
   autor: string;
   // metros entre el teléfono del autor y el lugar al publicar; null si no se conocía
   distanciaAlLugarM: number | null;
+  autorConfianza: NivelDeConfianza;
 };
 
 export type DenunciaAdmin = {
