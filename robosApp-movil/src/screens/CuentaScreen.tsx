@@ -3,6 +3,7 @@ import { Href, useRouter } from 'expo-router';
 import { ComponentProps } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { SelectorDeModo } from '../components/SelectorDeModo';
 import { useSesion } from '../sesion/SesionContext';
 import { colores, sombra } from '../utils/tema';
 
@@ -80,6 +81,8 @@ export function CuentaScreen() {
           </Pressable>
         ))}
       </View>
+
+      <SelectorDeModo />
     </ScrollView>
   );
 }
