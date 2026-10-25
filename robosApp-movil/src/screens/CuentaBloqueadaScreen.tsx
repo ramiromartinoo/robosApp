@@ -11,7 +11,7 @@ import { colores, esOscuro, sombra } from '../utils/tema';
 // Pantalla para una cuenta suspendida o baneada por un administrador. Reemplaza a toda la app:
 // el backend rechaza cualquier pedido de esa cuenta, así que no tendría sentido mostrar nada más.
 export function CuentaBloqueadaScreen() {
-  const { sesion, reintentar } = useSesion();
+  const { sesion, reintentar, cerrarSesion } = useSesion();
   const [revisando, setRevisando] = useState(false);
   const baneada = sesion?.estado === 'BANEADO';
 
@@ -57,6 +57,11 @@ export function CuentaBloqueadaScreen() {
             )}
           </Pressable>
         )}
+
+        {/* para entrar con otra cuenta */}
+        <Pressable onPress={cerrarSesion} hitSlop={8} accessibilityRole="button">
+          <Text style={styles.salir}>Cerrar sesión</Text>
+        </Pressable>
       </View>
 
       {/* solo en desarrollo: para salir de un usuario de prueba bloqueado sin tocar la base */}
@@ -127,5 +132,11 @@ const styles = StyleSheet.create({
     color: colores.textoSobreColor,
     fontSize: 18,
     fontWeight: '700',
+  },
+  salir: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colores.primarioTexto,
+    textAlign: 'center',
   },
 });

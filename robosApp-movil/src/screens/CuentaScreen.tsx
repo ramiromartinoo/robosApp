@@ -1,7 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Href, useRouter } from 'expo-router';
 import { ComponentProps } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { SelectorDeModo } from '../components/SelectorDeModo';
 import { SelectorDeUsuarioDePrueba } from '../components/SelectorDeUsuarioDePrueba';
@@ -41,9 +41,15 @@ const OPCIONES: Opcion[] = [
 // Menú personal: quién es el usuario y accesos a sus secciones
 export function CuentaScreen() {
   const router = useRouter();
-  const { sesion } = useSesion();
+  const { sesion, cerrarSesion } = useSesion();
   const esAdmin = sesion?.rol === 'ADMIN';
   const opciones = esAdmin ? [...OPCIONES, PANEL] : OPCIONES;
+
+  const confirmarSalida = () =>
+    Alert.alert('¿Cerrar sesión?', 'Para volver a usar la app vas a tener que entrar con tu mail y contraseña.', [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: 'Cerrar sesión', style: 'destructive', onPress: cerrarSesion },
+    ]);
 
   return (
     <ScrollView style={styles.pantalla} contentContainerStyle={styles.contenido}>
@@ -87,6 +93,11 @@ export function CuentaScreen() {
 
       {/* solo en desarrollo; en la app publicada no se ve */}
       <SelectorDeUsuarioDePrueba />
+
+      <Pressable style={styles.salir} onPress={confirmarSalida} accessibilityRole="button">
+        <Ionicons name="log-out-outline" size={20} color={colores.negar} />
+        <Text style={styles.salirTexto}>Cerrar sesión</Text>
+      </Pressable>
     </ScrollView>
   );
 }
@@ -170,6 +181,22 @@ const styles = StyleSheet.create({
   },
   textos: {
     flex: 1,
+  },
+  salir: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    minHeight: 52,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: colores.borde,
+    backgroundColor: colores.superficie,
+  },
+  salirTexto: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: colores.negar,
   },
   titulo: {
     fontSize: 17,

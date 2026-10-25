@@ -1,5 +1,5 @@
-import { obtenerToken } from '../utils/usuarioDePrueba';
-import { ErrorDeApi, pedir } from './cliente';
+import { obtenerToken } from './autenticacion';
+import { pedir } from './cliente';
 
 // Datos del usuario que devuelve el backend al iniciar sesión
 export type Sesion = {
@@ -20,12 +20,12 @@ export type Terminos = {
   fechaPublicacion: string;
 };
 
-// PROVISORIO: se identifica con el token de prueba. Cuando esté el login con Google,
-// acá va el token que entrega Firebase; el endpoint y la respuesta son los mismos.
-export function iniciarSesion(): Promise<Sesion> {
-  const token = obtenerToken();
+// Le presenta al backend el token de quien está logueado (Firebase o, en desarrollo, un usuario de prueba).
+// La primera vez, el backend registra al usuario. Devuelve null si no hay nadie logueado.
+export async function iniciarSesion(): Promise<Sesion | null> {
+  const token = await obtenerToken();
   if (!token) {
-    return Promise.reject(new ErrorDeApi(0, 'Falta configurar EXPO_PUBLIC_DEV_TOKEN en el archivo .env.local'));
+    return null;
   }
   return pedir<Sesion>('/auth/google', { method: 'POST', body: JSON.stringify({ idToken: token }) });
 }

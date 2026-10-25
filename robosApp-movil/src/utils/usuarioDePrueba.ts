@@ -1,8 +1,7 @@
 import * as SecureStore from 'expo-secure-store';
 
-// PROVISORIO, solo para desarrollo: con qué usuario de prueba del backend entra la app.
-// Se elige desde "Mi cuenta" sin tocar .env.local ni reiniciar Expo. Cuando esté el login real,
-// esto desaparece y el token lo entrega Firebase.
+// Solo para desarrollo: entrar con un usuario de prueba del backend en vez de loguearse con Firebase.
+// Se elige desde la pantalla de login o desde "Mi cuenta", sin tocar .env.local ni reiniciar Expo.
 
 export type UsuarioDePrueba = { token: string; nombre: string; detalle: string };
 
@@ -16,7 +15,7 @@ export const USUARIOS_DE_PRUEBA: UsuarioDePrueba[] = [
 
 const CLAVE = 'usuario-de-prueba';
 
-// El elegido en la app manda sobre el de .env.local. Fuera de desarrollo solo cuenta .env.local.
+// Fuera de desarrollo nunca hay usuario de prueba elegido
 function leerGuardado(): string | null {
   if (!__DEV__) {
     return null;
@@ -28,16 +27,21 @@ function leerGuardado(): string | null {
   }
 }
 
-let tokenActual: string | undefined = leerGuardado() ?? process.env.EXPO_PUBLIC_DEV_TOKEN;
+let elegido: string | null = leerGuardado();
 
-export function obtenerToken(): string | undefined {
-  return tokenActual;
+// El usuario de prueba elegido en la app, o null si no se eligió ninguno (o se cerró la sesión)
+export function obtenerTokenDePrueba(): string | null {
+  return elegido;
 }
 
-export function elegirUsuarioDePrueba(token: string) {
-  tokenActual = token;
+export function elegirUsuarioDePrueba(token: string | null) {
+  elegido = token;
   try {
-    SecureStore.setItem(CLAVE, token);
+    if (token) {
+      SecureStore.setItem(CLAVE, token);
+    } else {
+      SecureStore.deleteItemAsync(CLAVE);
+    }
   } catch {
     // si no se puede guardar, el cambio vale igual hasta que se cierre la app
   }

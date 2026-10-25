@@ -1,15 +1,21 @@
 import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 
+import { cerrarSesionDeFirebase } from '../api/autenticacion';
 import { alBloquearseLaCuenta, alHaberTerminosPendientes, ErrorDeApi } from '../api/cliente';
 import { iniciarSesion, Sesion } from '../api/sesion';
 import { elegirUsuarioDePrueba } from '../utils/usuarioDePrueba';
 
 type EstadoDeSesion = {
-  // null mientras se está iniciando o si falló
+  // null mientras se está iniciando, si falló o si no hay nadie logueado
   sesion: Sesion | null;
   cargando: boolean;
   error: string | null;
+  // true: no hay nadie logueado, hay que mostrar la pantalla para entrar
+  sinLoguear: boolean;
   reintentar: () => Promise<void>;
+  // lo llaman las pantallas de login después de entrar o crear la cuenta en Firebase
+  alEntrar: () => Promise<void>;
+  cerrarSesion: () => Promise<void>;
   // lo llama la pantalla de bienvenida cuando el usuario acepta los términos
   marcarTerminosAceptados: () => void;
   // solo desarrollo (ver usuarioDePrueba.ts)
@@ -23,12 +29,15 @@ export function ProveedorDeSesion({ children }: { children: ReactNode }) {
   const [sesion, setSesion] = useState<Sesion | null>(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [sinLoguear, setSinLoguear] = useState(false);
 
   const iniciar = useCallback(async () => {
     setCargando(true);
     setError(null);
     try {
-      setSesion(await iniciarSesion());
+      const nueva = await iniciarSesion();
+      setSesion(nueva);
+      setSinLoguear(nueva === null);
     } catch (e) {
       setError(e instanceof ErrorDeApi ? e.message : 'Ocurrió un error inesperado');
     } finally {
@@ -60,6 +69,15 @@ export function ProveedorDeSesion({ children }: { children: ReactNode }) {
     setSesion((actual) => (actual ? { ...actual, terminosPendientes: false } : actual));
   }, []);
 
+  // Sale de Firebase y del usuario de prueba, si había uno. Al vaciar la sesión, la app muestra la pantalla para entrar.
+  const cerrarSesion = useCallback(async () => {
+    elegirUsuarioDePrueba(null);
+    await cerrarSesionDeFirebase();
+    setSesion(null);
+    setError(null);
+    setSinLoguear(true);
+  }, []);
+
   // Solo desarrollo: entra con otro usuario de prueba. Al vaciar la sesión, la navegación se arma
   // de nuevo desde Inicio, como si la app recién se abriera.
   const cambiarUsuarioDePrueba = useCallback(
@@ -73,7 +91,17 @@ export function ProveedorDeSesion({ children }: { children: ReactNode }) {
 
   return (
     <SesionContext.Provider
-      value={{ sesion, cargando, error, reintentar: iniciar, marcarTerminosAceptados, cambiarUsuarioDePrueba }}>
+      value={{
+        sesion,
+        cargando,
+        error,
+        sinLoguear,
+        reintentar: iniciar,
+        alEntrar: iniciar,
+        cerrarSesion,
+        marcarTerminosAceptados,
+        cambiarUsuarioDePrueba,
+      }}>
       {children}
     </SesionContext.Provider>
   );

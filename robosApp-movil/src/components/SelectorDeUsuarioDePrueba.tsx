@@ -4,14 +4,14 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-nati
 
 import { useSesion } from '../sesion/SesionContext';
 import { colores, sombra } from '../utils/tema';
-import { obtenerToken, USUARIOS_DE_PRUEBA } from '../utils/usuarioDePrueba';
+import { obtenerTokenDePrueba, USUARIOS_DE_PRUEBA } from '../utils/usuarioDePrueba';
 
-// PROVISORIO, solo desarrollo: entrar con otro usuario de prueba con un toque, sin editar .env.local
-// ni reiniciar Expo. En la app publicada no se muestra (__DEV__ es false).
+// Solo desarrollo: entrar con un usuario de prueba con un toque, sin loguearse ni editar .env.local.
+// En la app publicada no se muestra (__DEV__ es false).
 export function SelectorDeUsuarioDePrueba() {
   const { cambiarUsuarioDePrueba } = useSesion();
   const [cambiandoA, setCambiandoA] = useState<string | null>(null);
-  const actual = obtenerToken();
+  const actual = obtenerTokenDePrueba();
 
   if (!__DEV__) {
     return null;
@@ -33,7 +33,7 @@ export function SelectorDeUsuarioDePrueba() {
           <Text style={styles.etiquetaTexto}>Solo desarrollo</Text>
         </View>
       </View>
-      <Text style={styles.detalle}>Entrá como otro usuario sin tocar .env.local.</Text>
+      <Text style={styles.detalle}>Entrá como uno de los usuarios de prueba del backend, sin loguearte.</Text>
 
       {USUARIOS_DE_PRUEBA.map((usuario) => {
         const elegido = usuario.token === actual;
