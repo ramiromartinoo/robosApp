@@ -2,6 +2,7 @@ import { createContext, ReactNode, useCallback, useContext, useEffect, useState 
 
 import { alBloquearseLaCuenta, alHaberTerminosPendientes, ErrorDeApi } from '../api/cliente';
 import { iniciarSesion, Sesion } from '../api/sesion';
+import { elegirUsuarioDePrueba } from '../utils/usuarioDePrueba';
 
 type EstadoDeSesion = {
   // null mientras se está iniciando o si falló
@@ -11,6 +12,8 @@ type EstadoDeSesion = {
   reintentar: () => Promise<void>;
   // lo llama la pantalla de bienvenida cuando el usuario acepta los términos
   marcarTerminosAceptados: () => void;
+  // solo desarrollo (ver usuarioDePrueba.ts)
+  cambiarUsuarioDePrueba: (token: string) => Promise<void>;
 };
 
 const SesionContext = createContext<EstadoDeSesion | null>(null);
@@ -57,8 +60,20 @@ export function ProveedorDeSesion({ children }: { children: ReactNode }) {
     setSesion((actual) => (actual ? { ...actual, terminosPendientes: false } : actual));
   }, []);
 
+  // Solo desarrollo: entra con otro usuario de prueba. Al vaciar la sesión, la navegación se arma
+  // de nuevo desde Inicio, como si la app recién se abriera.
+  const cambiarUsuarioDePrueba = useCallback(
+    async (token: string) => {
+      elegirUsuarioDePrueba(token);
+      setSesion(null);
+      await iniciar();
+    },
+    [iniciar],
+  );
+
   return (
-    <SesionContext.Provider value={{ sesion, cargando, error, reintentar: iniciar, marcarTerminosAceptados }}>
+    <SesionContext.Provider
+      value={{ sesion, cargando, error, reintentar: iniciar, marcarTerminosAceptados, cambiarUsuarioDePrueba }}>
       {children}
     </SesionContext.Provider>
   );

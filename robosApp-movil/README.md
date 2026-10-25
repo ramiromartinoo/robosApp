@@ -49,12 +49,12 @@ Este archivo no se sube al repositorio.
 
 | Variable | Para qué |
 |---|---|
-| `EXPO_PUBLIC_DEV_TOKEN` | Con qué usuario de prueba entra la app: `dev-cliente`, `dev-cliente-2`, `dev-cliente-3` o `dev-admin`. |
+| `EXPO_PUBLIC_DEV_TOKEN` | Con qué usuario de prueba entra la app la primera vez: `dev-cliente`, `dev-cliente-2`, `dev-cliente-3` o `dev-admin`. Después se cambia desde la app (ver abajo). |
 | `EXPO_PUBLIC_API_URL` | Dirección del backend. **Normalmente no hace falta**: la app usa sola la IP de la PC que corre Expo. Solo se define con `--tunnel` o si el backend está en otro equipo. |
 
 Después de cambiar este archivo hay que reiniciar Expo.
 
-Para ver el **panel de administrador**, usar `EXPO_PUBLIC_DEV_TOKEN=dev-admin`.
+**Cambiar de usuario de prueba:** en **Mi cuenta → Usuario de prueba** se elige con un toque, sin editar este archivo ni reiniciar Expo, y la app recuerda la elección. Para ver el **panel de administrador**, elegir "Admin de prueba". Esa sección solo existe en desarrollo: en la app publicada no aparece.
 
 ## Qué tiene la app
 
