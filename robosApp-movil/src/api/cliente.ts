@@ -3,7 +3,7 @@
 import Constants from 'expo-constants';
 
 import { obtenerIdDeDispositivo } from '../utils/dispositivo';
-import { obtenerToken } from '../utils/usuarioDePrueba';
+import { obtenerToken } from './autenticacion';
 
 const PUERTO_DEL_BACKEND = 8080;
 const ESPERA_MAXIMA_MS = 10000;
@@ -68,8 +68,8 @@ export async function pedir<T>(ruta: string, opciones: RequestInit = {}): Promis
 
   // identificador de esta instalación: el backend lo usa para detectar varias cuentas en un mismo teléfono
   const dispositivo = await obtenerIdDeDispositivo();
-  // PROVISORIO: token de prueba hasta que esté el login con Google (ver usuarioDePrueba.ts)
-  const token = obtenerToken();
+  // el de Firebase, o el de un usuario de prueba en desarrollo (ver autenticacion.ts)
+  const token = await obtenerToken();
 
   // si el servidor no contesta (apagado, firewall, otra red) se corta la espera en vez de quedar cargando
   const corte = new AbortController();

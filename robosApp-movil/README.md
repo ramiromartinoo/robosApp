@@ -2,7 +2,7 @@
 
 App para Android y iPhone donde los vecinos de Mar del Plata reportan robos e incidentes de inseguridad y ven lo que pasa cerca. Necesita el backend, que está en la carpeta [`robosApp`](../robosApp/README.md) de este mismo repositorio.
 
-**Estado:** en desarrollo. Se prueba en el celular con Expo Go y entra con usuarios de prueba; el login con Google todavía no está.
+**Estado:** en desarrollo. Se prueba en el celular con Expo Go. Se entra con mail y contraseña (Firebase) o, en desarrollo, con usuarios de prueba; el login con Google y Apple todavía no está.
 
 ## Tecnologías
 
@@ -49,20 +49,22 @@ Este archivo no se sube al repositorio.
 
 | Variable | Para qué |
 |---|---|
-| `EXPO_PUBLIC_DEV_TOKEN` | Con qué usuario de prueba entra la app la primera vez: `dev-cliente`, `dev-cliente-2`, `dev-cliente-3` o `dev-admin`. Después se cambia desde la app (ver abajo). |
+| `EXPO_PUBLIC_DEV_TOKEN` | Solo sin Firebase configurado: con qué usuario de prueba entra la app (`dev-cliente`, `dev-cliente-2`, `dev-cliente-3` o `dev-admin`). |
+| `EXPO_PUBLIC_FIREBASE_*` | La configuración de la app web del proyecto de Firebase, para el login con mail y contraseña (ver `.env.example`). No son secretos. Sin ellas se entra solo con los usuarios de prueba. |
 | `EXPO_PUBLIC_API_URL` | Dirección del backend. **Normalmente no hace falta**: la app usa sola la IP de la PC que corre Expo. Solo se define con `--tunnel` o si el backend está en otro equipo. |
 
 Después de cambiar este archivo hay que reiniciar Expo.
 
-**Cambiar de usuario de prueba:** en **Mi cuenta → Usuario de prueba** se elige con un toque, sin editar este archivo ni reiniciar Expo, y la app recuerda la elección. Para ver el **panel de administrador**, elegir "Admin de prueba". Esa sección solo existe en desarrollo: en la app publicada no aparece.
+**Usuarios de prueba:** en la pantalla para entrar y en **Mi cuenta → Usuario de prueba** se elige uno con un toque, sin loguearse ni editar este archivo, y la app recuerda la elección hasta que se cierra la sesión. Para que el backend acepte el login con mail y contraseña, tiene que tener configurada la clave de Firebase del mismo proyecto (ver su README). Para ver el **panel de administrador**, elegir "Admin de prueba". Esa sección solo existe en desarrollo: en la app publicada no aparece.
 
 ## Qué tiene la app
 
+- **Entrar:** con mail y contraseña, crear una cuenta o recuperar la contraseña (Firebase manda el mail).
 - **Bienvenida:** pide aceptar los términos y condiciones la primera vez y cada vez que cambian.
 - **Inicio:** feed de reportes con filtros por tipo de hecho y por distancia. Cada reporte muestra a cuántos metros ocurrió y permite confirmarlo, negarlo, denunciarlo o ver la zona en el mapa.
 - **Reportar:** formulario con tipo de hecho, descripción, fecha y ubicación (GPS y un pin que se ajusta moviendo el mapa).
 - **Mapa:** mapa de calor de las últimas 3 horas, 1 día o 7 días.
-- **Mi cuenta:** mis reportes (editar y eliminar), sugerencias y, para administradores, el panel de moderación.
+- **Mi cuenta:** mis reportes (editar y eliminar), sugerencias, el modo claro u oscuro, cerrar sesión y, para administradores, el panel de moderación.
 
 ## Organización del código
 
@@ -89,7 +91,8 @@ Verifica los tipos. No hay pruebas automáticas todavía.
 
 ## Pendientes conocidos
 
-- **Login con Google:** requiere una versión compilada de la app (no funciona en Expo Go) y, en iPhone, una cuenta de Apple Developer. Mientras tanto se entra con los tokens de prueba.
+- **Login con Google y con Apple:** requieren una versión compilada de la app (no funcionan en Expo Go) y, para Apple, una cuenta de Apple Developer. Mientras tanto se entra con mail y contraseña.
+- **Eliminar la propia cuenta** desde la app: Apple y Google lo exigen para publicar una app con registro.
 - **Notificaciones push:** dependen de lo mismo.
 - **Mapas fuera de Expo Go:** al compilar la app para Android va a hacer falta una clave de Google Maps.
 - El ícono y la pantalla de carga propios se ven completos recién en una versión compilada: Expo Go muestra su propia pantalla de carga.

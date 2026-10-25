@@ -17,13 +17,14 @@ export default function Layout() {
 }
 
 // Qué pantallas están disponibles depende de la sesión:
+// - sin nadie logueado, solo las de entrar, crear cuenta y recuperar la contraseña;
 // - sin términos aceptados, solo la bienvenida;
 // - con los términos aceptados, la app (las pestañas y las pantallas que se abren encima).
 // Cuando la condición cambia, Expo Router pasa solo de un grupo al otro.
 function Navegacion() {
-  const { sesion, cargando, error, reintentar } = useSesion();
+  const { sesion, cargando, error, sinLoguear, reintentar, cerrarSesion } = useSesion();
 
-  if (!sesion) {
+  if (!sesion && !sinLoguear) {
     return (
       <View style={styles.arranque}>
         {cargando ? (
@@ -34,6 +35,10 @@ function Navegacion() {
             <Pressable style={styles.reintentar} onPress={reintentar}>
               <Text style={styles.reintentarTexto}>Reintentar</Text>
             </Pressable>
+            {/* por si el problema es la cuenta: permite entrar con otra */}
+            <Pressable onPress={cerrarSesion} hitSlop={8}>
+              <Text style={styles.arranqueEnlace}>Cerrar sesión</Text>
+            </Pressable>
           </>
         )}
       </View>
@@ -41,8 +46,8 @@ function Navegacion() {
   }
 
   // una cuenta suspendida o baneada solo ve la pantalla que se lo explica, aunque haya aceptado los términos
-  const cuentaActiva = sesion.estado === 'ACTIVO';
-  const aceptoLosTerminos = !sesion.terminosPendientes;
+  const cuentaActiva = sesion?.estado === 'ACTIVO';
+  const aceptoLosTerminos = sesion !== null && !sesion.terminosPendientes;
   const puedeUsarLaApp = cuentaActiva && aceptoLosTerminos;
 
   return (
@@ -66,7 +71,7 @@ function Navegacion() {
 
       {/* El panel solo existe para administradores. Es una comodidad de la app, no la seguridad:
           el backend rechaza igual cualquier pedido a /admin de quien no tenga ese rol. */}
-      <Stack.Protected guard={puedeUsarLaApp && sesion.rol === 'ADMIN'}>
+      <Stack.Protected guard={puedeUsarLaApp && sesion?.rol === 'ADMIN'}>
         <Stack.Screen name="admin/index" options={{ title: 'Panel de administrador' }} />
         <Stack.Screen name="admin/denuncias" options={{ title: 'Denuncias' }} />
         <Stack.Screen name="admin/sugerencias" options={{ title: 'Sugerencias' }} />
@@ -79,8 +84,14 @@ function Navegacion() {
         <Stack.Screen name="bienvenida" options={{ headerShown: false }} />
       </Stack.Protected>
 
-      <Stack.Protected guard={!cuentaActiva}>
+      <Stack.Protected guard={sesion !== null && !cuentaActiva}>
         <Stack.Screen name="cuenta-bloqueada" options={{ headerShown: false }} />
+      </Stack.Protected>
+
+      <Stack.Protected guard={sesion === null}>
+        <Stack.Screen name="entrar" options={{ headerShown: false }} />
+        <Stack.Screen name="crear-cuenta" options={{ title: 'Crear cuenta' }} />
+        <Stack.Screen name="recuperar-contrasenia" options={{ title: 'Recuperar contraseña' }} />
       </Stack.Protected>
     </Stack>
   );
@@ -101,6 +112,12 @@ const styles = StyleSheet.create({
     fontSize: 17,
     lineHeight: 24,
     textAlign: 'center',
+  },
+  arranqueEnlace: {
+    color: colores.textoSobreColor,
+    fontSize: 16,
+    fontWeight: '600',
+    textDecorationLine: 'underline',
   },
   reintentar: {
     backgroundColor: colores.superficie,
