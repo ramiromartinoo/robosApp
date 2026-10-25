@@ -162,9 +162,8 @@ public class PosteoService {
 	// lat, lng y radioKm son opcionales, pero van los tres juntos o ninguno
 	@Transactional(readOnly = true)
 	public PaginaResponse<PosteoResponse> feed(Categoria categoria, Double lat, Double lng, Double radioKm,
-			int pagina, int tamanio) {
-		// se ordena por la hora real del hecho, no por la de publicación
-		Pageable pageable = Paginacion.masRecientesPrimero(pagina, tamanio, "fechaHoraIncidente");
+			OrdenDelFeed orden, int pagina, int tamanio) {
+		Pageable pageable = Paginacion.masRecientesPrimero(pagina, tamanio, orden.campoFecha());
 
 		Page<Posteo> posteos;
 		if (lat != null || lng != null || radioKm != null) {

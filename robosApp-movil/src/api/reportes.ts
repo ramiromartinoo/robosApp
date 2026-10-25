@@ -25,15 +25,19 @@ export type NuevoReporte = {
   fechaHoraIncidente: string;
 };
 
+// HECHO: por la hora en que ocurrió; PUBLICACION: por la hora en que se publicó
+export type OrdenDelFeed = 'HECHO' | 'PUBLICACION';
+
 export type FiltrosDeReportes = {
   // null = todos los tipos de hecho
   categoria: Categoria | null;
   // null = toda la ciudad
   cerca: { latitud: number; longitud: number; radioKm: number } | null;
+  orden: OrdenDelFeed;
 };
 
 export function obtenerFeed(pagina: number, filtros: FiltrosDeReportes): Promise<Pagina<Posteo>> {
-  let ruta = `/reportes?page=${pagina}&size=${TAMANIO_PAGINA}`;
+  let ruta = `/reportes?page=${pagina}&size=${TAMANIO_PAGINA}&orden=${filtros.orden}`;
   if (filtros.categoria) {
     ruta += `&categoria=${filtros.categoria}`;
   }

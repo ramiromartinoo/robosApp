@@ -82,7 +82,7 @@ Todas las rutas piden el encabezado `Authorization`, salvo las marcadas como pú
 | `POST /auth/google` (pública) | Inicia sesión con el token y devuelve los datos del usuario. La primera vez lo registra. |
 | `GET /terminos/vigentes` (pública) | Términos y condiciones vigentes. |
 | `POST /terminos/aceptar` | Acepta la versión vigente. |
-| `GET /reportes` | Feed paginado. Filtros: `categoria`, y `lat` + `lng` + `radio` (en km). |
+| `GET /reportes` | Feed paginado. Filtros: `categoria`, y `lat` + `lng` + `radio` (en km). Orden con `orden`: `HECHO` (por defecto, la hora del hecho) o `PUBLICACION`. |
 | `POST /reportes` | Publica un reporte. Máximo 5 por hora por usuario. |
 | `GET /reportes/mios` | Los reportes propios. |
 | `PUT /reportes/{id}` | Edita uno propio, solo durante los primeros 10 minutos. |

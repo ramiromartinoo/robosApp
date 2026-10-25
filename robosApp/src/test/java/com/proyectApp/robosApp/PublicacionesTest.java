@@ -9,6 +9,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -79,6 +83,32 @@ class PublicacionesTest extends PruebaDeIntegracion {
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.totalElementos").value(1))
 				.andExpect(jsonPath("$.contenido[0].categoria").value("ROBO_COMERCIO"));
+	}
+
+	@Test
+	@DisplayName("El feed se ordena por la hora del hecho o, si se pide, por la hora de publicación")
+	void ordenDelFeed() throws Exception {
+		long reciente = publicar(CLIENTE);
+		// se publica después, pero el hecho ocurrió hace dos días
+		String haceDosDias = LocalDateTime.now().minusDays(2).truncatedTo(ChronoUnit.SECONDS)
+				.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+		String respuesta = pedirConJson(post("/reportes"), CLIENTE_2, """
+				{"descripcion":"Lo reporto recién, pero pasó antes de ayer","categoria":"HURTO",
+				 "latitud":-38.0,"longitud":-57.55,"fechaHoraIncidente":"%s"}
+				""".formatted(haceDosDias))
+				.andExpect(status().isCreated())
+				.andReturn().getResponse().getContentAsString();
+		long viejo = idDe(respuesta);
+
+		// sin indicar el orden, manda la hora del hecho
+		pedir(get("/reportes"), CLIENTE_3)
+				.andExpect(jsonPath("$.contenido[0].id").value(reciente))
+				.andExpect(jsonPath("$.contenido[1].id").value(viejo));
+		pedir(get("/reportes").param("orden", "PUBLICACION"), CLIENTE_3)
+				.andExpect(jsonPath("$.contenido[0].id").value(viejo))
+				.andExpect(jsonPath("$.contenido[1].id").value(reciente));
+		pedir(get("/reportes").param("orden", "CUALQUIERA"), CLIENTE_3)
+				.andExpect(status().isBadRequest());
 	}
 
 	@Test

@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Posteo, TipoConfirmacion } from '../api/tipos';
 import { CATEGORIAS } from '../utils/categorias';
 import { distanciaEnMetros, distanciaLegible, Punto } from '../utils/distancia';
-import { haceCuanto } from '../utils/fechas';
+import { haceCuanto, haceCuantoCorto } from '../utils/fechas';
 import { colores, sombra } from '../utils/tema';
 
 type Props = {
@@ -72,9 +72,13 @@ export function ItemPosteo({
           <Text style={styles.inicial}>{posteo.autor.charAt(0).toUpperCase()}</Text>
         </View>
         <View style={styles.quien}>
-          <Text style={styles.autor} numberOfLines={1}>
-            {posteo.autor}
-          </Text>
+          {/* nombre y hace cuánto se publicó, como en Twitter */}
+          <View style={styles.nombreYPublicacion}>
+            <Text style={styles.autor} numberOfLines={1}>
+              {posteo.autor}
+            </Text>
+            <Text style={styles.publicado}> · {haceCuantoCorto(posteo.fechaHoraPublicacion)}</Text>
+          </View>
           {/* la hora que importa es la del hecho, no la de publicación */}
           <Text style={styles.tiempo}>Ocurrió {haceCuanto(posteo.fechaHoraIncidente)}</Text>
           {/* reputación del autor: ayuda a decidir cuánto confiar en el reporte */}
@@ -183,10 +187,20 @@ const styles = StyleSheet.create({
   quien: {
     flex: 1,
   },
+  nombreYPublicacion: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+  },
   autor: {
+    // si el nombre es largo se corta, pero el tiempo de publicación siempre se ve
+    flexShrink: 1,
     fontSize: 16,
     fontWeight: '700',
     color: colores.texto,
+  },
+  publicado: {
+    fontSize: 14,
+    color: colores.textoSuave,
   },
   tiempo: {
     fontSize: 14,
