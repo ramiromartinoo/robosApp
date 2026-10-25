@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { SelectorDeUsuarioDePrueba } from '../components/SelectorDeUsuarioDePrueba';
 import { useSesion } from '../sesion/SesionContext';
 import { colores, esOscuro, sombra } from '../utils/tema';
 
@@ -57,11 +58,21 @@ export function CuentaBloqueadaScreen() {
           </Pressable>
         )}
       </View>
+
+      {/* solo en desarrollo: para salir de un usuario de prueba bloqueado sin tocar la base */}
+      {__DEV__ && (
+        <View style={styles.desarrollo}>
+          <SelectorDeUsuarioDePrueba />
+        </View>
+      )}
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  desarrollo: {
+    marginTop: 14,
+  },
   pantalla: {
     flex: 1,
     backgroundColor: colores.fondo,

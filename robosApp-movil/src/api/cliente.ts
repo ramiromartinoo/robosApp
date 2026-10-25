@@ -3,6 +3,7 @@
 import Constants from 'expo-constants';
 
 import { obtenerIdDeDispositivo } from '../utils/dispositivo';
+import { obtenerToken } from '../utils/usuarioDePrueba';
 
 const PUERTO_DEL_BACKEND = 8080;
 const ESPERA_MAXIMA_MS = 10000;
@@ -18,8 +19,6 @@ function urlDetectada(): string | undefined {
 
 // Si EXPO_PUBLIC_API_URL está definida, manda (hace falta con --tunnel o con un backend en otro equipo)
 const API_URL = process.env.EXPO_PUBLIC_API_URL || urlDetectada();
-// PROVISORIO: token fijo de prueba hasta que esté el login con Google
-export const TOKEN = process.env.EXPO_PUBLIC_DEV_TOKEN;
 
 // El backend responde 428 a cualquier pedido cuando hay una versión de los términos sin aceptar
 // (por ejemplo, si se publica una nueva mientras se usa la app). La sesión se suscribe para enterarse.
@@ -69,6 +68,8 @@ export async function pedir<T>(ruta: string, opciones: RequestInit = {}): Promis
 
   // identificador de esta instalación: el backend lo usa para detectar varias cuentas en un mismo teléfono
   const dispositivo = await obtenerIdDeDispositivo();
+  // PROVISORIO: token de prueba hasta que esté el login con Google (ver usuarioDePrueba.ts)
+  const token = obtenerToken();
 
   // si el servidor no contesta (apagado, firewall, otra red) se corta la espera en vez de quedar cargando
   const corte = new AbortController();
@@ -81,7 +82,7 @@ export async function pedir<T>(ruta: string, opciones: RequestInit = {}): Promis
       signal: corte.signal,
       headers: {
         'Content-Type': 'application/json',
-        ...(TOKEN ? { Authorization: `Bearer ${TOKEN}` } : {}),
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
         'X-Dispositivo': dispositivo,
         ...opciones.headers,
       },
