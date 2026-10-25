@@ -19,9 +19,20 @@ const PERIODOS = [
 const MAR_DEL_PLATA = { latitude: -38.0055, longitude: -57.5426, latitudeDelta: 0.12, longitudeDelta: 0.12 };
 
 // De "pocos reportes" (amarillo) a "muchos" (rojo). Cada zona se dibuja como una mancha de calor:
-// cuanto más reportes tiene respecto de la zona más cargada, más grande, más roja y más intensa.
+// cuantos más reportes tiene, más grande, más roja y más intensa.
 const POCOS = [250, 204, 21];
 const MUCHOS = [220, 38, 38];
+// Escala fija: el color dice siempre lo mismo, sin importar cuánto haya en el resto de la ciudad.
+// (Con una escala relativa a la zona más cargada, si todas tenían un solo reporte se veían todas rojas.)
+const NIVELES = [
+  { desde: 4, intensidad: 1, nombre: '4 o más' },
+  { desde: 2, intensidad: 0.5, nombre: '2 a 3' },
+  { desde: 1, intensidad: 0, nombre: '1' },
+];
+
+function intensidadDe(reportes: number): number {
+  return (NIVELES.find((nivel) => reportes >= nivel.desde) ?? NIVELES[NIVELES.length - 1]).intensidad;
+}
 const RADIO_MINIMO_M = 150;
 const RADIO_EXTRA_M = 130;
 // Cada mancha son tres círculos concéntricos sin borde, de más grande y tenue a más chico y fuerte:
@@ -72,14 +83,13 @@ export function MapaScreen() {
     }, [horas]),
   );
 
-  const maximo = Math.max(1, ...puntos.map((punto) => punto.peso));
   const total = puntos.reduce((suma, punto) => suma + punto.peso, 0);
 
   return (
     <View style={styles.pantalla}>
       <MapView style={styles.mapa} initialRegion={MAR_DEL_PLATA}>
         {puntos.flatMap((punto) => {
-          const intensidad = punto.peso / maximo;
+          const intensidad = intensidadDe(punto.peso);
           const radio = RADIO_MINIMO_M + RADIO_EXTRA_M * intensidad;
           return CAPAS.map((capa) => {
             const color = colorDeZona(intensidad, capa.opacidad);
@@ -129,14 +139,16 @@ export function MapaScreen() {
                   ? '1 reporte en este período'
                   : `${total} reportes en este período`}
             </Text>
+            {/* cuántos reportes por zona significa cada color */}
             <View style={styles.leyenda}>
-              <Text style={styles.leyendaTexto}>Menos</Text>
-              <View style={[styles.muestra, { backgroundColor: colorDeZona(0) }]} />
-              <View style={[styles.muestra, { backgroundColor: colorDeZona(0.5) }]} />
-              <View style={[styles.muestra, { backgroundColor: colorDeZona(1) }]} />
-              <Text style={styles.leyendaTexto}>Más</Text>
+              {[...NIVELES].reverse().map((nivel) => (
+                <View key={nivel.desde} style={styles.nivel}>
+                  <View style={[styles.muestra, { backgroundColor: colorDeZona(nivel.intensidad) }]} />
+                  <Text style={styles.leyendaTexto}>{nivel.nombre}</Text>
+                </View>
+              ))}
             </View>
-            <Text style={styles.nota}>Las zonas son aproximadas.</Text>
+            <Text style={styles.nota}>Reportes por zona. Las zonas son aproximadas.</Text>
           </>
         )}
       </View>
@@ -218,7 +230,12 @@ const styles = StyleSheet.create({
   leyenda: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 14,
+  },
+  nivel: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
   leyendaTexto: {
     fontSize: 14,
