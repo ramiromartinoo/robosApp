@@ -18,6 +18,32 @@ export function haceCuanto(fechaIso: string): string {
   return dias === 1 ? 'hace 1 día' : `hace ${dias} días`;
 }
 
+const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+
+// Versión corta, como la de Twitter: "ahora", "5 min", "3 h", "2 d" y, pasada una semana, "18 oct"
+export function haceCuantoCorto(fechaIso: string): string {
+  const fecha = new Date(fechaIso);
+  const minutos = Math.floor((Date.now() - fecha.getTime()) / 60000);
+  if (Number.isNaN(minutos)) {
+    return '';
+  }
+  if (minutos < 1) {
+    return 'ahora';
+  }
+  if (minutos < 60) {
+    return `${minutos} min`;
+  }
+  const horas = Math.floor(minutos / 60);
+  if (horas < 24) {
+    return `${horas} h`;
+  }
+  const dias = Math.floor(horas / 24);
+  if (dias < 7) {
+    return `${dias} d`;
+  }
+  return `${fecha.getDate()} ${MESES[fecha.getMonth()]}`;
+}
+
 const dosDigitos = (numero: number) => String(numero).padStart(2, '0');
 
 // El backend espera fecha y hora local sin zona horaria: "2026-10-09T18:30:00".

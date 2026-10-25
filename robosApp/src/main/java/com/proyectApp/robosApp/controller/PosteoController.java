@@ -28,6 +28,7 @@ import com.proyectApp.robosApp.dto.PuntoHeatmapResponse;
 import com.proyectApp.robosApp.entity.Categoria;
 import com.proyectApp.robosApp.service.ConfirmacionService;
 import com.proyectApp.robosApp.service.DenunciaService;
+import com.proyectApp.robosApp.service.OrdenDelFeed;
 import com.proyectApp.robosApp.service.PosteoService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -98,9 +99,11 @@ public class PosteoController {
 			@RequestParam(required = false) Double lng,
 			// en kilómetros
 			@RequestParam(required = false) Double radio,
+			// HECHO (por defecto) ordena por la hora del hecho; PUBLICACION, por la hora en que se publicó
+			@RequestParam(defaultValue = "HECHO") OrdenDelFeed orden,
 			@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "20") int size) {
-		return posteoService.feed(categoria, lat, lng, radio, page, size);
+		return posteoService.feed(categoria, lat, lng, radio, orden, page, size);
 	}
 
 	@GetMapping("/heatmap")

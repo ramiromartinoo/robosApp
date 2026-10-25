@@ -1,12 +1,14 @@
-import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useRef, useState } from 'react';
+import { useFocusEffect, useNavigation, useRouter } from 'expo-router';
+import type { NavigationProp, NavigationState, ParamListBase } from 'expo-router/react-navigation';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { ErrorDeApi } from '../api/cliente';
-import { denunciar, obtenerFeed, quitarVoto, votar } from '../api/reportes';
+import { denunciar, obtenerFeed, OrdenDelFeed, quitarVoto, votar } from '../api/reportes';
 import { Categoria, MotivoDenuncia, Posteo, TipoConfirmacion } from '../api/tipos';
 import { EstadoVacio } from '../components/EstadoVacio';
 import { FiltrosDelFeed } from '../components/FiltrosDelFeed';
+import { PestaniasDeOrden } from '../components/PestaniasDeOrden';
 import { ItemPosteo } from '../components/ItemPosteo';
 import { ModalDenuncia } from '../components/ModalDenuncia';
 import { ModalUbicacion } from '../components/ModalUbicacion';
@@ -17,8 +19,19 @@ const mensajeDe = (e: unknown) => (e instanceof ErrorDeApi ? e.message : 'Ocurri
 // 3 decimales ≈ 100 metros
 const redondear = (coordenada: number) => Math.round(coordenada * 1000) / 1000;
 
+// Navegación de una pestaña: además de los eventos comunes, avisa cuando se toca su botón abajo
+type NavegacionDePestania = NavigationProp<
+  ParamListBase,
+  string,
+  undefined,
+  NavigationState,
+  {},
+  { tabPress: { data: undefined; canPreventDefault: true } }
+>;
+
 export function FeedScreen() {
   const router = useRouter();
+  const navigation = useNavigation<NavegacionDePestania>();
   const [posteos, setPosteos] = useState<Posteo[]>([]);
   const [cargando, setCargando] = useState(true);
   const [refrescando, setRefrescando] = useState(false);
@@ -33,6 +46,7 @@ export function FeedScreen() {
   // Filtros elegidos (null = sin filtrar)
   const [categoria, setCategoria] = useState<Categoria | null>(null);
   const [radioKm, setRadioKm] = useState<number | null>(null);
+  const [orden, setOrden] = useState<OrdenDelFeed>('HECHO');
   // Centro del filtro por distancia. Se redondea a ~100 m: alcanza para filtrar y evita mandarle
   // al servidor la posición exacta del usuario. Solo existe mientras ese filtro está activo.
   const centroLat = radioKm !== null && miUbicacion ? redondear(miUbicacion.latitud) : null;
@@ -61,6 +75,7 @@ export function FeedScreen() {
             radioKm !== null && centroLat !== null && centroLng !== null
               ? { latitud: centroLat, longitud: centroLng, radioKm }
               : null,
+          orden,
         });
         if (miGeneracion !== generacion.current) {
           return;
@@ -87,7 +102,7 @@ export function FeedScreen() {
         }
       }
     },
-    [categoria, radioKm, centroLat, centroLng],
+    [categoria, radioKm, centroLat, centroLng, orden],
   );
 
   const elegirRadio = async (km: number | null) => {
@@ -115,6 +130,55 @@ export function FeedScreen() {
     await Promise.all([cargar(true), actualizarUbicacion()]);
     setRefrescando(false);
   };
+
+  // Tocar "Inicio" estando ya en Inicio vuelve al principio de la lista y la recarga, como en Twitter.
+  // Primero sube y recién arriba recarga: si recargara mientras sube, la lista nueva corta la animación
+  // a mitad de camino. Va en ref para que use siempre la versión actual de refrescar (con los filtros del momento).
+  const lista = useRef<FlatList<Posteo>>(null);
+  const refrescarRef = useRef(refrescar);
+  refrescarRef.current = refrescar;
+  const desplazamiento = useRef(0);
+  const subiendo = useRef(false);
+  // por si la animación no llega arriba (por ejemplo, en una lista muy larga): salta de golpe y recarga igual
+  const plazoDeSubida = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const terminarSubida = useCallback((recargar: boolean) => {
+    subiendo.current = false;
+    if (plazoDeSubida.current) {
+      clearTimeout(plazoDeSubida.current);
+      plazoDeSubida.current = null;
+    }
+    if (recargar) {
+      refrescarRef.current();
+    }
+  }, []);
+
+  useEffect(
+    () =>
+      navigation.addListener('tabPress', () => {
+        // si se viene desde otra pestaña, useFocusEffect ya recarga y no hace falta subir
+        if (!navigation.isFocused()) {
+          return;
+        }
+        if (desplazamiento.current <= 1) {
+          terminarSubida(true);
+          return;
+        }
+        subiendo.current = true;
+        lista.current?.scrollToOffset({ offset: 0, animated: true });
+        if (plazoDeSubida.current) {
+          clearTimeout(plazoDeSubida.current);
+        }
+        plazoDeSubida.current = setTimeout(() => {
+          lista.current?.scrollToOffset({ offset: 0, animated: false });
+          terminarSubida(true);
+        }, 1500);
+      }),
+    [navigation, terminarSubida],
+  );
+
+  // no dejar un plazo pendiente si la pantalla se desmonta
+  useEffect(() => () => terminarSubida(false), [terminarSubida]);
 
   const alVotar = async (posteo: Posteo, tipo: TipoConfirmacion) => {
     const posteoId = posteo.id;
@@ -155,6 +219,7 @@ export function FeedScreen() {
 
   return (
     <View style={styles.pantalla}>
+      <PestaniasDeOrden orden={orden} onOrden={setOrden} />
       <FiltrosDelFeed
         categoria={categoria}
         radioKm={radioKm}
@@ -172,6 +237,7 @@ export function FeedScreen() {
       )}
 
       <FlatList
+        ref={lista}
         data={posteos}
         keyExtractor={(posteo) => String(posteo.id)}
         renderItem={({ item }) => (
@@ -185,6 +251,20 @@ export function FeedScreen() {
           />
         )}
         contentContainerStyle={styles.lista}
+        // para saber cuándo la subida por tocar "Inicio" llegó arriba
+        onScroll={(evento) => {
+          desplazamiento.current = evento.nativeEvent.contentOffset.y;
+          if (subiendo.current && desplazamiento.current <= 1) {
+            terminarSubida(true);
+          }
+        }}
+        scrollEventThrottle={16}
+        // si el usuario agarra la lista mientras sube, manda él: no se recarga ni se lo lleva arriba
+        onScrollBeginDrag={() => {
+          if (subiendo.current) {
+            terminarSubida(false);
+          }
+        }}
         // scroll infinito: pide la página siguiente al acercarse al final
         onEndReached={() => cargar(false)}
         onEndReachedThreshold={0.5}
