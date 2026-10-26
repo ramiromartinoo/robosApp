@@ -148,7 +148,7 @@ export function MapaScreen() {
                 </View>
               ))}
             </View>
-            <Text style={styles.nota}>Reportes por zona. Las zonas son aproximadas.</Text>
+            <Text style={styles.nota}>Las zonas son aproximadas.</Text>
           </>
         )}
       </View>
