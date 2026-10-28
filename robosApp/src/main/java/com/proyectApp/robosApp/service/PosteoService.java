@@ -43,14 +43,17 @@ public class PosteoService {
 	private final PosteoRepository posteoRepository;
 	private final UsuarioActualService usuarioActualService;
 	private final int maximoPorHora;
+	private final int maximoPorIpPorHora;
 	private final int minutosParaEditar;
 
 	public PosteoService(PosteoRepository posteoRepository, UsuarioActualService usuarioActualService,
 			@Value("${robosapp.posteos.maximo-por-hora:5}") int maximoPorHora,
+			@Value("${robosapp.posteos.maximo-por-ip-por-hora:10}") int maximoPorIpPorHora,
 			@Value("${robosapp.posteos.minutos-para-editar:10}") int minutosParaEditar) {
 		this.posteoRepository = posteoRepository;
 		this.usuarioActualService = usuarioActualService;
 		this.maximoPorHora = maximoPorHora;
+		this.maximoPorIpPorHora = maximoPorIpPorHora;
 		this.minutosParaEditar = minutosParaEditar;
 	}
 
@@ -64,6 +67,13 @@ public class PosteoService {
 		if (recientes >= maximoPorHora) {
 			throw new DemasiadasPeticionesException(
 					"Llegaste al máximo de " + maximoPorHora + " publicaciones por hora. Probá de nuevo más tarde");
+		}
+		// el límite por usuario se esquiva creando cuentas nuevas; este frena muchas cuentas desde la misma
+		// conexión. Es más alto porque varios vecinos pueden compartir IP (mismo wifi o la red del celular)
+		if (ip != null && posteoRepository.countByIpPublicacionAndFechaHoraPublicacionAfter(
+				ip, LocalDateTime.now().minusHours(1)) >= maximoPorIpPorHora) {
+			throw new DemasiadasPeticionesException(
+					"Se publicaron demasiados reportes desde esta conexión. Probá de nuevo más tarde");
 		}
 
 		Posteo posteo = new Posteo();

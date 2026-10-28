@@ -41,6 +41,8 @@ robosapp:
   posteos:
     # límite de publicaciones por usuario
     maximo-por-hora: 5
+    # límite de publicaciones desde una misma IP, sumando todas las cuentas (frena las cuentas truchas)
+    maximo-por-ip-por-hora: 10
     # ventana para editar un posteo propio después de publicarlo
     minutos-para-editar: 10
   denuncias:

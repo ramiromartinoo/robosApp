@@ -13,5 +13,6 @@ robosapp:
   # valores chicos para que las pruebas lleguen a los límites con pocos pedidos
   posteos:
     maximo-por-hora: 3
+    maximo-por-ip-por-hora: 5
   denuncias:
     umbral-auto-ocultamiento: 2
