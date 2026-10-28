@@ -39,8 +39,9 @@ export default function TabLayout() {
               <Ionicons name="person-circle-outline" size={30} color={colores.textoSobreColor} />
             </Pressable>
           ),
+          // los colores de las pestañas son siempre texto (tabBarActiveTintColor); el tipo admite más formas
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons size={25} name={focused ? 'home' : 'home-outline'} color={color} />
+            <Ionicons size={25} name={focused ? 'home' : 'home-outline'} color={color as string} />
           ),
         }}
       />
@@ -70,7 +71,7 @@ export default function TabLayout() {
         options={{
           title: 'Mapa',
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons size={25} name={focused ? 'map' : 'map-outline'} color={color} />
+            <Ionicons size={25} name={focused ? 'map' : 'map-outline'} color={color as string} />
           ),
         }}
       />
