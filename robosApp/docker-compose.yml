@@ -1,0 +1,38 @@
+# Backend + MySQL juntos en una sola máquina (opción B de DESPLIEGUE.md: un servidor propio).
+# Uso: copiar .env.example a .env, completarlo y correr "docker compose up -d --build".
+# En la opción A (Render + Aiven) no se usa este archivo: allá solo corre el Dockerfile.
+
+services:
+  base:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: robosapp_db
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    volumes:
+      # los datos viven fuera del contenedor: sobreviven a reinicios y actualizaciones
+      - datos-mysql:/var/lib/mysql
+    # sin "ports": la base no queda expuesta a internet, solo la ve el backend
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 10
+
+  backend:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      base:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:mysql://base:3306/robosapp_db
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      ROBOSAPP_FIREBASE_CREDENCIALES_JSON: ${ROBOSAPP_FIREBASE_CREDENCIALES_JSON}
+    ports:
+      - "8080:8080"
+
+volumes:
+  datos-mysql:

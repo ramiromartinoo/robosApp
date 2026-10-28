@@ -31,6 +31,8 @@ public class SecurityConfig {
 						.requestMatchers("/auth/**").permitAll()
 						// los términos se tienen que poder leer antes de registrarse
 						.requestMatchers(HttpMethod.GET, "/terminos/vigentes").permitAll()
+						// el hosting lo consulta para saber si la app está viva (solo responde {"status":"UP"})
+						.requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
 						.requestMatchers("/admin/**").hasRole("ADMIN")
 						.anyRequest().authenticated())
 				.exceptionHandling(errores -> errores

@@ -2,18 +2,19 @@ package com.proyectApp.robosApp.security;
 
 import java.util.Optional;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
+import com.proyectApp.robosApp.config.HayCredencialesDeFirebase;
 
 import lombok.RequiredArgsConstructor;
 
 // Valida el ID token que Firebase le entrega a la app después del login con Google
 @Component
-@ConditionalOnProperty(name = "robosapp.firebase.credenciales")
+@Conditional(HayCredencialesDeFirebase.class)
 @RequiredArgsConstructor
 public class VerificadorDeTokenFirebase implements VerificadorDeToken {
 

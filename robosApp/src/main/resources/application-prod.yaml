@@ -1,6 +1,6 @@
 # Perfil de producción. Se activa en el servidor con la variable de entorno SPRING_PROFILES_ACTIVE=prod.
 # En el servidor no hay application-local.yaml: la base y Firebase se configuran con variables de entorno
-# (DB_URL, DB_USERNAME, DB_PASSWORD y ROBOSAPP_FIREBASE_CREDENCIALES).
+# (DB_URL, DB_USERNAME, DB_PASSWORD y ROBOSAPP_FIREBASE_CREDENCIALES_JSON). Ver DESPLIEGUE.md.
 
 server:
   # Detrás de un proxy o balanceador (lo habitual en un hosting), la IP real del usuario llega en el
