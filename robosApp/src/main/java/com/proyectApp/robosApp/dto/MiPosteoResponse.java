@@ -18,14 +18,11 @@ public record MiPosteoResponse(
 		LocalDateTime fechaHoraPublicacion,
 		// ACTIVO o EN_REVISION (los eliminados no se listan)
 		EstadoPosteo estado,
-		long confirmaciones,
-		long negaciones,
 		// 0 si ya venció la ventana de edición. Va en segundos restantes y no como fecha límite
 		// para que no dependa de que el reloj del teléfono coincida con el del servidor.
 		long segundosParaEditar) {
 
-	public static MiPosteoResponse desde(Posteo posteo, long confirmaciones, long negaciones,
-			long segundosParaEditar) {
+	public static MiPosteoResponse desde(Posteo posteo, long segundosParaEditar) {
 		return new MiPosteoResponse(
 				posteo.getId(),
 				posteo.getDescripcion(),
@@ -36,8 +33,6 @@ public record MiPosteoResponse(
 				posteo.getFechaHoraIncidente(),
 				posteo.getFechaHoraPublicacion(),
 				posteo.getEstado(),
-				confirmaciones,
-				negaciones,
 				segundosParaEditar);
 	}
 

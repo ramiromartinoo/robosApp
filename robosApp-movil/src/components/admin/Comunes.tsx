@@ -291,17 +291,31 @@ const estilosDeCargarMas = StyleSheet.create({
   },
 });
 
-// Reputación de un usuario en el panel. NORMAL no lleva etiqueta.
-const NIVELES: Record<'NUEVO' | 'CONFIABLE' | 'DUDOSO', { texto: string; color: string; fondo: string }> = {
-  NUEVO: { texto: 'Cuenta nueva', color: colores.textoSuave, fondo: colores.borde },
-  CONFIABLE: { texto: 'Confiable', color: colores.confirmar, fondo: colores.confirmarSuave },
-  DUDOSO: { texto: 'Reportes cuestionados', color: colores.aviso, fondo: colores.avisoSuave },
-};
-
-export function EtiquetaDeConfianza({ nivel }: { nivel: 'NUEVO' | 'NORMAL' | 'CONFIABLE' | 'DUDOSO' }) {
-  if (nivel === 'NORMAL') {
-    return null;
-  }
-  const { texto, color, fondo } = NIVELES[nivel];
-  return <Etiqueta texto={texto} color={color} fondo={fondo} />;
+// Antecedentes de un usuario en el panel: reportes que le eliminó la moderación y advertencias.
+// Sin antecedentes no se muestra nada.
+export function EtiquetasDeAntecedentes({
+  reportesEliminados,
+  advertencias,
+}: {
+  reportesEliminados: number;
+  advertencias: number;
+}) {
+  return (
+    <>
+      {reportesEliminados > 0 && (
+        <Etiqueta
+          texto={reportesEliminados === 1 ? '1 reporte eliminado' : `${reportesEliminados} reportes eliminados`}
+          color={colores.negar}
+          fondo={colores.negarSuave}
+        />
+      )}
+      {advertencias > 0 && (
+        <Etiqueta
+          texto={advertencias === 1 ? '1 advertencia' : `${advertencias} advertencias`}
+          color={colores.aviso}
+          fondo={colores.avisoSuave}
+        />
+      )}
+    </>
+  );
 }

@@ -144,23 +144,4 @@ class PublicacionesTest extends PruebaDeIntegracion {
 				.andExpect(jsonPath("$.contenido[*].id", not(hasItem((int) id))));
 	}
 
-	@Test
-	@DisplayName("Nadie puede confirmar ni negar su propio reporte, y votar de nuevo lo anula")
-	void votos() throws Exception {
-		long id = publicar(CLIENTE);
-
-		pedirConJson(post("/reportes/" + id + "/confirmar"), CLIENTE, "{\"tipo\":\"CONFIRMA\"}")
-				.andExpect(status().isConflict());
-
-		pedirConJson(post("/reportes/" + id + "/confirmar"), CLIENTE_2, "{\"tipo\":\"CONFIRMA\"}")
-				.andExpect(jsonPath("$.confirmaciones").value(1));
-		// cambiar el voto no suma otro
-		pedirConJson(post("/reportes/" + id + "/confirmar"), CLIENTE_2, "{\"tipo\":\"NIEGA\"}")
-				.andExpect(jsonPath("$.confirmaciones").value(0))
-				.andExpect(jsonPath("$.negaciones").value(1));
-		pedir(delete("/reportes/" + id + "/confirmar"), CLIENTE_2)
-				.andExpect(jsonPath("$.negaciones").value(0))
-				.andExpect(jsonPath("$.miVoto").doesNotExist());
-	}
-
 }

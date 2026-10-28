@@ -73,12 +73,14 @@ export function AdminEstadisticasScreen() {
 
           <Tarjeta>
             <Text style={styles.titulo}>Zonas con más reportes</Text>
-            <Text style={styles.detalle}>Cuanto más grande y oscuro el círculo, más reportes hubo en esa zona.</Text>
+            <Text style={styles.detalle}>Cuanto más grande y más rojo el círculo, más reportes hubo en esa zona.</Text>
             <View style={styles.marco}>
               <MapView style={styles.mapa} initialRegion={MAR_DEL_PLATA}>
                 {datos.porZona.map((zona) => {
                   const intensidad = zona.peso / maximoPorZona;
-                  const color = `rgba(27, 77, 62, ${0.2 + 0.4 * intensidad})`;
+                  // de amarillo (pocos) a rojo (muchos), como el mapa de calor: el verde se perdía con el fondo del mapa
+                  const verde = Math.round(204 - (204 - 38) * intensidad);
+                  const color = `rgba(${Math.round(250 - 30 * intensidad)}, ${verde}, ${Math.round(21 + 17 * intensidad)}, ${0.45 + 0.3 * intensidad})`;
                   return (
                     <Circle
                       key={`${zona.latitud},${zona.longitud}`}

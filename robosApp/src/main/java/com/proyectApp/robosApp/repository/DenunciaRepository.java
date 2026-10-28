@@ -43,7 +43,7 @@ public interface DenunciaRepository extends JpaRepository<Denuncia, Long> {
 	List<Denuncia> buscarConPosteo(@Param("estado") EstadoDenuncia estado,
 			@Param("posteoIds") Collection<Long> posteoIds);
 
-	// Reputación: cuántos reportes de cada usuario eliminó la moderación al resolver denuncias
+	// Antecedentes: cuántos reportes de cada usuario eliminó la moderación al resolver denuncias
 	@Query("""
 			select new com.proyectApp.robosApp.repository.ConteoPorUsuario(d.posteo.usuario.id, count(distinct d.posteo.id))
 			from Denuncia d

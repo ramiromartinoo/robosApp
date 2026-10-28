@@ -4,8 +4,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { ErrorDeApi } from '../api/cliente';
-import { denunciar, obtenerFeed, OrdenDelFeed, quitarVoto, votar } from '../api/reportes';
-import { Categoria, MotivoDenuncia, Posteo, TipoConfirmacion } from '../api/tipos';
+import { denunciar, obtenerFeed, OrdenDelFeed } from '../api/reportes';
+import { Categoria, MotivoDenuncia, Posteo } from '../api/tipos';
 import { EstadoVacio } from '../components/EstadoVacio';
 import { FiltrosDelFeed } from '../components/FiltrosDelFeed';
 import { PestaniasDeOrden } from '../components/PestaniasDeOrden';
@@ -180,29 +180,6 @@ export function FeedScreen() {
   // no dejar un plazo pendiente si la pantalla se desmonta
   useEffect(() => () => terminarSubida(false), [terminarSubida]);
 
-  const alVotar = async (posteo: Posteo, tipo: TipoConfirmacion) => {
-    const posteoId = posteo.id;
-    try {
-      // tocar el voto que ya estaba marcado lo anula (por si se tocó sin querer)
-      const resultado = posteo.miVoto === tipo ? await quitarVoto(posteoId) : await votar(posteoId, tipo);
-      // actualiza solo ese reporte con los números que devuelve el servidor
-      setPosteos((actuales) =>
-        actuales.map((posteo) =>
-          posteo.id === posteoId
-            ? {
-                ...posteo,
-                confirmaciones: resultado.confirmaciones,
-                negaciones: resultado.negaciones,
-                miVoto: resultado.miVoto,
-              }
-            : posteo,
-        ),
-      );
-    } catch (e) {
-      Alert.alert('No se pudo registrar tu voto', mensajeDe(e));
-    }
-  };
-
   const alDenunciar = async (motivo: MotivoDenuncia) => {
     const posteoId = aDenunciar;
     setADenunciar(null);
@@ -244,7 +221,6 @@ export function FeedScreen() {
           <ItemPosteo
             posteo={item}
             miUbicacion={miUbicacion}
-            onVotar={(tipo) => alVotar(item, tipo)}
             onDenunciar={() => setADenunciar(item.id)}
             onVerUbicacion={() => setViendoUbicacion(item)}
             onVerMisReportes={() => router.push('/mis-reportes')}

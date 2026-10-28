@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.proyectApp.robosApp.dto.ConfirmacionesResponse;
-import com.proyectApp.robosApp.dto.ConfirmarRequest;
 import com.proyectApp.robosApp.dto.CrearPosteoRequest;
 import com.proyectApp.robosApp.dto.DenunciaResponse;
 import com.proyectApp.robosApp.dto.DenunciarRequest;
@@ -26,7 +24,6 @@ import com.proyectApp.robosApp.dto.PaginaResponse;
 import com.proyectApp.robosApp.dto.PosteoResponse;
 import com.proyectApp.robosApp.dto.PuntoHeatmapResponse;
 import com.proyectApp.robosApp.entity.Categoria;
-import com.proyectApp.robosApp.service.ConfirmacionService;
 import com.proyectApp.robosApp.service.DenunciaService;
 import com.proyectApp.robosApp.service.OrdenDelFeed;
 import com.proyectApp.robosApp.service.PosteoService;
@@ -42,7 +39,6 @@ public class PosteoController {
 
 	private final PosteoService posteoService;
 	private final DenunciaService denunciaService;
-	private final ConfirmacionService confirmacionService;
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
@@ -79,17 +75,6 @@ public class PosteoController {
 	@ResponseStatus(HttpStatus.CREATED)
 	public DenunciaResponse denunciar(@PathVariable Long id, @Valid @RequestBody DenunciarRequest request) {
 		return denunciaService.denunciar(id, request);
-	}
-
-	@PostMapping("/{id}/confirmar")
-	public ConfirmacionesResponse confirmar(@PathVariable Long id, @Valid @RequestBody ConfirmarRequest request) {
-		return confirmacionService.votar(id, request.tipo());
-	}
-
-	// Anula el voto propio
-	@DeleteMapping("/{id}/confirmar")
-	public ConfirmacionesResponse quitarVoto(@PathVariable Long id) {
-		return confirmacionService.quitarVoto(id);
 	}
 
 	@GetMapping

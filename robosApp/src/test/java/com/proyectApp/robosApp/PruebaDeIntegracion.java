@@ -44,13 +44,12 @@ public abstract class PruebaDeIntegracion {
 	@BeforeEach
 	void dejarLaBaseLimpia() throws Exception {
 		// primero lo que depende de los reportes; los usuarios y los términos se conservan
-		jdbc.update("delete from confirmaciones");
 		jdbc.update("delete from denuncias");
 		jdbc.update("delete from posteos");
 		jdbc.update("delete from sugerencias");
 		jdbc.update("delete from aceptacion_terminos");
-		// todas las cuentas de prueba activas, sin sanciones y recién registradas
-		jdbc.update("update usuarios set estado = 'ACTIVO', advertencias = 0, fecha_registro = now()");
+		// todas las cuentas de prueba activas y sin sanciones
+		jdbc.update("update usuarios set estado = 'ACTIVO', advertencias = 0");
 		for (String cliente : List.of(CLIENTE, CLIENTE_2, CLIENTE_3)) {
 			aceptarTerminos(cliente);
 		}

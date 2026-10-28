@@ -3,9 +3,7 @@ package com.proyectApp.robosApp.dto;
 import java.time.LocalDateTime;
 
 import com.proyectApp.robosApp.entity.Categoria;
-import com.proyectApp.robosApp.entity.NivelDeConfianza;
 import com.proyectApp.robosApp.entity.Posteo;
-import com.proyectApp.robosApp.entity.TipoConfirmacion;
 
 public record PosteoResponse(
 		Long id,
@@ -18,18 +16,10 @@ public record PosteoResponse(
 		LocalDateTime fechaHoraIncidente,
 		LocalDateTime fechaHoraPublicacion,
 		String autor,
-		// cuántos vecinos confirmaron o negaron el hecho
-		long confirmaciones,
-		long negaciones,
-		// qué votó quien hace la petición (null si no votó)
-		TipoConfirmacion miVoto,
 		// true si el posteo es de quien hace la petición
-		boolean esMio,
-		// reputación del autor: NUEVO, NORMAL o CONFIABLE (DUDOSO nunca se muestra en público)
-		NivelDeConfianza autorConfianza) {
+		boolean esMio) {
 
-	public static PosteoResponse desde(Posteo posteo, long confirmaciones, long negaciones,
-			TipoConfirmacion miVoto, boolean esMio, NivelDeConfianza autorConfianza) {
+	public static PosteoResponse desde(Posteo posteo, boolean esMio) {
 		return new PosteoResponse(
 				posteo.getId(),
 				posteo.getDescripcion(),
@@ -40,11 +30,7 @@ public record PosteoResponse(
 				posteo.getFechaHoraIncidente(),
 				posteo.getFechaHoraPublicacion(),
 				posteo.getUsuario().getNombreVisible(),
-				confirmaciones,
-				negaciones,
-				miVoto,
-				esMio,
-				autorConfianza);
+				esMio);
 	}
 
 	// 3 decimales ≈ 100 metros: la ubicación pública es aproximada, nunca la exacta

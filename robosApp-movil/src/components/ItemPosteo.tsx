@@ -1,7 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { Posteo, TipoConfirmacion } from '../api/tipos';
+import { Posteo } from '../api/tipos';
 import { CATEGORIAS } from '../utils/categorias';
 import { distanciaEnMetros, distanciaLegible, Punto } from '../utils/distancia';
 import { haceCuanto, haceCuantoCorto } from '../utils/fechas';
@@ -11,53 +11,20 @@ type Props = {
   posteo: Posteo;
   // ubicación actual del usuario; null si no se conoce
   miUbicacion: Punto | null;
-  // tocar el voto que ya está marcado lo anula (lo resuelve la pantalla)
-  onVotar: (tipo: TipoConfirmacion) => void;
   onDenunciar: () => void;
   onVerUbicacion: () => void;
   onVerMisReportes: () => void;
 };
 
-// Resumen de lo que opinan los vecinos sobre el reporte
-function estadoDe(posteo: Posteo): { texto: string; icono: 'checkmark' | 'alert-circle-outline'; color: string; fondo: string } {
-  const { confirmaciones, negaciones } = posteo;
-  if (negaciones > confirmaciones) {
-    return {
-      texto: negaciones === 1 ? '1 vecino dice que no fue así' : `${negaciones} vecinos dicen que no fue así`,
-      icono: 'alert-circle-outline',
-      color: colores.negar,
-      fondo: colores.negarSuave,
-    };
-  }
-  if (confirmaciones > 0) {
-    return {
-      texto: confirmaciones === 1 ? 'Confirmado por 1 vecino' : `Confirmado por ${confirmaciones} vecinos`,
-      icono: 'checkmark',
-      color: colores.confirmar,
-      fondo: colores.confirmarSuave,
-    };
-  }
-  return {
-    texto: 'Sin confirmar todavía',
-    icono: 'alert-circle-outline',
-    color: colores.aviso,
-    fondo: colores.avisoSuave,
-  };
-}
-
 // Tarjeta de un reporte en el feed
 export function ItemPosteo({
   posteo,
   miUbicacion,
-  onVotar,
   onDenunciar,
   onVerUbicacion,
   onVerMisReportes,
 }: Props) {
   const categoria = CATEGORIAS[posteo.categoria];
-  const estado = estadoDe(posteo);
-  const confirmo = posteo.miVoto === 'CONFIRMA';
-  const nego = posteo.miVoto === 'NIEGA';
 
   // Con la ubicación del usuario se muestra la distancia, así decide qué reporte abrir en el mapa.
   // Sin ella, la zona guardada o un texto genérico.
@@ -81,19 +48,6 @@ export function ItemPosteo({
           </View>
           {/* la hora que importa es la del hecho, no la de publicación */}
           <Text style={styles.tiempo}>Ocurrió {haceCuanto(posteo.fechaHoraIncidente)}</Text>
-          {/* reputación del autor: ayuda a decidir cuánto confiar en el reporte */}
-          {posteo.autorConfianza === 'CONFIABLE' && (
-            <View style={styles.confianza}>
-              <Ionicons name="shield-checkmark" size={14} color={colores.confirmar} />
-              <Text style={[styles.confianzaTexto, { color: colores.confirmar }]}>Vecino confiable</Text>
-            </View>
-          )}
-          {posteo.autorConfianza === 'NUEVO' && (
-            <View style={styles.confianza}>
-              <Ionicons name="person-add-outline" size={14} color={colores.textoSuave} />
-              <Text style={[styles.confianzaTexto, { color: colores.textoSuave }]}>Cuenta nueva</Text>
-            </View>
-          )}
         </View>
         <View style={[styles.categoria, { backgroundColor: categoria.fondo }]}>
           <Text style={[styles.categoriaTexto, { color: categoria.color }]}>{categoria.nombre}</Text>
@@ -102,47 +56,18 @@ export function ItemPosteo({
 
       <Text style={styles.descripcion}>{posteo.descripcion}</Text>
 
-      {/* tocar abre el mapa con la zona aproximada del hecho */}
-      <Pressable style={styles.ubicacion} onPress={onVerUbicacion} hitSlop={8}>
-        <Ionicons name="location-outline" size={18} color={colores.primarioTexto} />
-        <Text style={styles.ubicacionTexto} numberOfLines={1}>
-          {dondeFue}
-        </Text>
-        <Ionicons name="chevron-forward" size={16} color={colores.primarioTexto} />
-      </Pressable>
-
-      <View style={[styles.estado, { backgroundColor: estado.fondo }]}>
-        <Ionicons name={estado.icono} size={15} color={estado.color} />
-        <Text style={[styles.estadoTexto, { color: estado.color }]}>{estado.texto}</Text>
-      </View>
-
-      {posteo.esMio ? (
-        // sobre un reporte propio no se vota ni se denuncia; se administra desde "Mis reportes"
-        <Pressable style={styles.propio} onPress={onVerMisReportes} hitSlop={8}>
-          <Text style={styles.propioTexto}>Es tu reporte · </Text>
-          <Text style={styles.propioEnlace}>Ver mis reportes</Text>
-          <Ionicons name="chevron-forward" size={15} color={colores.primarioTexto} />
+      <View style={styles.pie}>
+        {/* tocar abre el mapa con la zona aproximada del hecho */}
+        <Pressable style={styles.ubicacion} onPress={onVerUbicacion} hitSlop={8}>
+          <Ionicons name="location-outline" size={18} color={colores.primarioTexto} />
+          <Text style={styles.ubicacionTexto} numberOfLines={1}>
+            {dondeFue}
+          </Text>
+          <Ionicons name="chevron-forward" size={16} color={colores.primarioTexto} />
         </Pressable>
-      ) : (
-        <>
-          <View style={styles.acciones}>
-            <Pressable
-              style={[styles.accion, confirmo && styles.accionConfirmada]}
-              onPress={() => onVotar('CONFIRMA')}
-              accessibilityState={{ selected: confirmo }}>
-              <Text style={[styles.accionTexto, confirmo && styles.accionTextoConfirmada]}>
-                Yo también lo vi · {posteo.confirmaciones}
-              </Text>
-            </Pressable>
 
-            <Pressable
-              style={[styles.accion, nego && styles.accionNegada]}
-              onPress={() => onVotar('NIEGA')}
-              accessibilityState={{ selected: nego }}>
-              <Text style={[styles.accionTexto, nego && styles.accionTextoNegada]}>No fue así</Text>
-            </Pressable>
-          </View>
-
+        {/* si no es un robo o no corresponde, se denuncia y lo resuelve un administrador */}
+        {!posteo.esMio && (
           <Pressable
             style={styles.denunciar}
             onPress={onDenunciar}
@@ -150,7 +75,16 @@ export function ItemPosteo({
             accessibilityLabel="Denunciar este reporte">
             <Ionicons name="flag-outline" size={20} color={colores.textoSuave} />
           </Pressable>
-        </>
+        )}
+      </View>
+
+      {posteo.esMio && (
+        // un reporte propio no se denuncia; se administra desde "Mis reportes"
+        <Pressable style={styles.propio} onPress={onVerMisReportes} hitSlop={8}>
+          <Text style={styles.propioTexto}>Es tu reporte · </Text>
+          <Text style={styles.propioEnlace}>Ver mis reportes</Text>
+          <Ionicons name="chevron-forward" size={15} color={colores.primarioTexto} />
+        </Pressable>
       )}
     </View>
   );
@@ -206,16 +140,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colores.textoSuave,
   },
-  confianza: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    marginTop: 2,
-  },
-  confianzaTexto: {
-    fontSize: 13,
-    fontWeight: '700',
-  },
   categoria: {
     paddingHorizontal: 10,
     paddingVertical: 5,
@@ -231,9 +155,14 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     color: colores.texto,
   },
+  pie: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
   ubicacion: {
-    alignSelf: 'flex-start',
-    maxWidth: '100%',
+    flexShrink: 1,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
@@ -244,19 +173,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: colores.primarioTexto,
     textDecorationLine: 'underline',
-  },
-  estado: {
-    alignSelf: 'flex-start',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 999,
-  },
-  estadoTexto: {
-    fontSize: 13,
-    fontWeight: '700',
   },
   propio: {
     alignSelf: 'flex-start',
@@ -272,43 +188,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: colores.primarioTexto,
   },
-  acciones: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  accion: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: 48,
-    paddingHorizontal: 10,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colores.borde,
-    backgroundColor: colores.superficie,
-  },
-  accionTexto: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: colores.texto,
-    textAlign: 'center',
-  },
-  accionConfirmada: {
-    backgroundColor: colores.primario,
-    borderColor: colores.primario,
-  },
-  accionTextoConfirmada: {
-    color: colores.textoSobreColor,
-  },
-  accionNegada: {
-    backgroundColor: colores.negarSuave,
-    borderColor: colores.negar,
-  },
-  accionTextoNegada: {
-    color: colores.negar,
-  },
   denunciar: {
-    alignSelf: 'flex-start',
     padding: 4,
   },
 });

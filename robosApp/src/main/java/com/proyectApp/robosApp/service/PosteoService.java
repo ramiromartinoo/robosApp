@@ -2,15 +2,11 @@ package com.proyectApp.robosApp.service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,19 +19,14 @@ import com.proyectApp.robosApp.dto.PosteoResponse;
 import com.proyectApp.robosApp.dto.PuntoHeatmapResponse;
 import com.proyectApp.robosApp.entity.Categoria;
 import com.proyectApp.robosApp.entity.EstadoPosteo;
-import com.proyectApp.robosApp.entity.NivelDeConfianza;
 import com.proyectApp.robosApp.entity.Posteo;
-import com.proyectApp.robosApp.entity.TipoConfirmacion;
 import com.proyectApp.robosApp.entity.Usuario;
 import com.proyectApp.robosApp.exception.AccesoDenegadoException;
 import com.proyectApp.robosApp.exception.ConflictoException;
 import com.proyectApp.robosApp.exception.DemasiadasPeticionesException;
 import com.proyectApp.robosApp.exception.PeticionInvalidaException;
 import com.proyectApp.robosApp.exception.RecursoNoEncontradoException;
-import com.proyectApp.robosApp.repository.ConfirmacionRepository;
-import com.proyectApp.robosApp.repository.ConteoConfirmaciones;
 import com.proyectApp.robosApp.repository.PosteoRepository;
-import com.proyectApp.robosApp.service.ReputacionService.Reputacion;
 
 @Service
 public class PosteoService {
@@ -50,20 +41,15 @@ public class PosteoService {
 	private static final Pattern FORMATO_DE_DISPOSITIVO = Pattern.compile("[A-Za-z0-9-]{8,64}");
 
 	private final PosteoRepository posteoRepository;
-	private final ConfirmacionRepository confirmacionRepository;
 	private final UsuarioActualService usuarioActualService;
-	private final ReputacionService reputacionService;
 	private final int maximoPorHora;
 	private final int minutosParaEditar;
 
-	public PosteoService(PosteoRepository posteoRepository, ConfirmacionRepository confirmacionRepository,
-			UsuarioActualService usuarioActualService, ReputacionService reputacionService,
+	public PosteoService(PosteoRepository posteoRepository, UsuarioActualService usuarioActualService,
 			@Value("${robosapp.posteos.maximo-por-hora:5}") int maximoPorHora,
 			@Value("${robosapp.posteos.minutos-para-editar:10}") int minutosParaEditar) {
 		this.posteoRepository = posteoRepository;
-		this.confirmacionRepository = confirmacionRepository;
 		this.usuarioActualService = usuarioActualService;
-		this.reputacionService = reputacionService;
 		this.maximoPorHora = maximoPorHora;
 		this.minutosParaEditar = minutosParaEditar;
 	}
@@ -87,9 +73,7 @@ public class PosteoService {
 		posteo.setDispositivoId(dispositivoValido(dispositivo));
 		posteo.setDistanciaAlLugarM(request.distanciaAlLugarM());
 		Posteo guardado = posteoRepository.save(posteo);
-		NivelDeConfianza confianza = reputacionService.deUsuarios(List.of(usuario.getId()))
-				.get(usuario.getId()).nivelPublico();
-		return PosteoResponse.desde(guardado, 0, 0, null, true, confianza);
+		return PosteoResponse.desde(guardado, true);
 	}
 
 	// Los posteos del usuario actual, incluidos los que están en revisión (los eliminados no)
@@ -98,8 +82,7 @@ public class PosteoService {
 		Page<Posteo> posteos = posteoRepository.findByUsuarioIdAndEstadoNot(
 				usuarioActualService.obtener().getId(), EstadoPosteo.ELIMINADO,
 				Paginacion.masRecientesPrimero(pagina, tamanio, "fechaHoraPublicacion"));
-		Map<Long, Map<TipoConfirmacion, Long>> conteos = conteosDe(posteos.getContent());
-		return PaginaResponse.desde(posteos.map(posteo -> miPosteo(posteo, conteos)));
+		return PaginaResponse.desde(posteos.map(posteo -> MiPosteoResponse.desde(posteo, segundosParaEditar(posteo))));
 	}
 
 	@Transactional
@@ -112,15 +95,7 @@ public class PosteoService {
 		posteo.setDescripcion(request.descripcion().trim());
 		posteo.setCategoria(request.categoria());
 		posteo.setFechaHoraIncidente(request.fechaHoraIncidente());
-		return miPosteo(posteo, conteosDe(List.of(posteo)));
-	}
-
-	private MiPosteoResponse miPosteo(Posteo posteo, Map<Long, Map<TipoConfirmacion, Long>> conteos) {
-		Map<TipoConfirmacion, Long> delPosteo = conteos.getOrDefault(posteo.getId(), Map.of());
-		return MiPosteoResponse.desde(posteo,
-				delPosteo.getOrDefault(TipoConfirmacion.CONFIRMA, 0L),
-				delPosteo.getOrDefault(TipoConfirmacion.NIEGA, 0L),
-				segundosParaEditar(posteo));
+		return MiPosteoResponse.desde(posteo, segundosParaEditar(posteo));
 	}
 
 	// 0 si ya venció la ventana de edición
@@ -173,8 +148,9 @@ public class PosteoService {
 		} else {
 			posteos = posteoRepository.findByEstado(EstadoPosteo.ACTIVO, pageable);
 		}
-		return PaginaResponse.desde(
-				new PageImpl<>(conConteos(posteos.getContent()), pageable, posteos.getTotalElements()));
+		Long usuarioId = usuarioActualService.obtener().getId();
+		return PaginaResponse.desde(posteos.map(
+				posteo -> PosteoResponse.desde(posteo, posteo.getUsuario().getId().equals(usuarioId))));
 	}
 
 	private Page<Posteo> cercanos(Categoria categoria, Double lat, Double lng, Double radioKm, Pageable pageable) {
@@ -194,47 +170,6 @@ public class PosteoService {
 		double deltaLng = radioKm / (KM_POR_GRADO * Math.cos(Math.toRadians(lat))) + MARGEN_GRADOS;
 		return posteoRepository.buscarCercanos(EstadoPosteo.ACTIVO, categoria, lat, lng, radioKm,
 				lat - deltaLat, lat + deltaLat, lng - deltaLng, lng + deltaLng, pageable);
-	}
-
-	// Suma a cada posteo cuántos lo confirmaron y cuántos lo negaron, y qué votó el usuario actual.
-	// También la reputación de cada autor. Son pocas consultas para toda la lista, no varias por posteo.
-	private List<PosteoResponse> conConteos(List<Posteo> posteos) {
-		if (posteos.isEmpty()) {
-			return List.of();
-		}
-		Long usuarioId = usuarioActualService.obtener().getId();
-		List<Long> ids = posteos.stream().map(Posteo::getId).toList();
-
-		Map<Long, Map<TipoConfirmacion, Long>> conteos = conteosDe(posteos);
-		Map<Long, TipoConfirmacion> misVotos = new HashMap<>();
-		confirmacionRepository.votosDelUsuario(usuarioId, ids)
-				.forEach(voto -> misVotos.put(voto.getPosteo().getId(), voto.getTipo()));
-		Map<Long, Reputacion> reputaciones = reputacionService
-				.deUsuarios(posteos.stream().map(posteo -> posteo.getUsuario().getId()).distinct().toList());
-
-		return posteos.stream().map(posteo -> {
-			Map<TipoConfirmacion, Long> delPosteo = conteos.getOrDefault(posteo.getId(), Map.of());
-			return PosteoResponse.desde(posteo,
-					delPosteo.getOrDefault(TipoConfirmacion.CONFIRMA, 0L),
-					delPosteo.getOrDefault(TipoConfirmacion.NIEGA, 0L),
-					misVotos.get(posteo.getId()),
-					posteo.getUsuario().getId().equals(usuarioId),
-					reputaciones.get(posteo.getUsuario().getId()).nivelPublico());
-		}).toList();
-	}
-
-	// Confirmaciones y negaciones de cada posteo de la lista, con una sola consulta
-	private Map<Long, Map<TipoConfirmacion, Long>> conteosDe(List<Posteo> posteos) {
-		Map<Long, Map<TipoConfirmacion, Long>> conteos = new HashMap<>();
-		if (posteos.isEmpty()) {
-			return conteos;
-		}
-		List<Long> ids = posteos.stream().map(Posteo::getId).toList();
-		for (ConteoConfirmaciones conteo : confirmacionRepository.contarPorPosteo(ids)) {
-			conteos.computeIfAbsent(conteo.posteoId(), id -> new EnumMap<>(TipoConfirmacion.class))
-					.put(conteo.tipo(), conteo.cantidad());
-		}
-		return conteos;
 	}
 
 	// El período se puede pedir en horas o en días; si vienen los dos, mandan las horas

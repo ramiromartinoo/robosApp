@@ -81,7 +81,7 @@ public interface PosteoRepository extends JpaRepository<Posteo, Long> {
 			""")
 	List<Usuario> cuentasConLaMismaConexion(@Param("usuarioId") Long usuarioId);
 
-	// Reputación: cuántos reportes vigentes (no eliminados) tiene cada usuario
+	// Antecedentes: cuántos reportes vigentes (no eliminados) tiene cada usuario
 	@Query("""
 			select new com.proyectApp.robosApp.repository.ConteoPorUsuario(p.usuario.id, count(p))
 			from Posteo p

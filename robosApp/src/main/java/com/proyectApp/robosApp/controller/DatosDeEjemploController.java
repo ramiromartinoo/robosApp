@@ -21,7 +21,7 @@ public class DatosDeEjemploController {
 
 	private final DatosDeEjemplo datosDeEjemplo;
 
-	// BORRA todos los reportes, votos y denuncias, y carga los de ejemplo
+	// BORRA todos los reportes y denuncias, y carga los de ejemplo
 	@PostMapping("/datos-de-ejemplo")
 	public Map<String, Integer> reiniciar() {
 		return datosDeEjemplo.reiniciar();

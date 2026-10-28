@@ -4,8 +4,8 @@ import java.time.LocalDateTime;
 
 import com.proyectApp.robosApp.entity.Categoria;
 import com.proyectApp.robosApp.entity.EstadoPosteo;
-import com.proyectApp.robosApp.entity.NivelDeConfianza;
 import com.proyectApp.robosApp.entity.Posteo;
+import com.proyectApp.robosApp.service.AntecedentesService.Antecedentes;
 
 // Vista de un posteo para el panel admin: suma el estado y quién lo publicó.
 // La ubicación sigue siendo la aproximada: para moderar no hace falta la exacta.
@@ -23,10 +23,10 @@ public record AdminPosteoResponse(
 		// metros entre el teléfono del autor y el lugar al publicar (null si no se conocía).
 		// Una distancia muy grande no prueba nada, pero ayuda a evaluar un reporte denunciado.
 		Integer distanciaAlLugarM,
-		// reputación del autor, incluido DUDOSO (el panel sí lo ve)
-		NivelDeConfianza autorConfianza) {
+		// reportes publicados, reportes eliminados por la moderación y advertencias del autor
+		Antecedentes antecedentesDelAutor) {
 
-	public static AdminPosteoResponse desde(Posteo posteo, NivelDeConfianza autorConfianza) {
+	public static AdminPosteoResponse desde(Posteo posteo, Antecedentes antecedentesDelAutor) {
 		return new AdminPosteoResponse(
 				posteo.getId(),
 				posteo.getDescripcion(),
@@ -39,7 +39,7 @@ public record AdminPosteoResponse(
 				posteo.getUsuario().getId(),
 				posteo.getUsuario().getNombreVisible(),
 				posteo.getDistanciaAlLugarM(),
-				autorConfianza);
+				antecedentesDelAutor);
 	}
 
 }

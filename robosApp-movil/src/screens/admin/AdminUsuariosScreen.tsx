@@ -17,7 +17,7 @@ import {
   BotonCargarMas,
   EstadoDeLista,
   Etiqueta,
-  EtiquetaDeConfianza,
+  EtiquetasDeAntecedentes,
   PantallaConLista,
   Tarjeta,
 } from '../../components/admin/Comunes';
@@ -139,19 +139,15 @@ export function AdminUsuariosScreen() {
               <View style={styles.etiquetas}>
                 <Etiqueta texto={estado.nombre} color={estado.color} fondo={estado.fondo} />
                 {esAdmin && <Etiqueta texto="Administrador" color={colores.primarioTexto} fondo={colores.primarioSuave} />}
-                <EtiquetaDeConfianza nivel={usuario.confianza} />
-                {usuario.advertencias > 0 && (
-                  <Etiqueta
-                    texto={usuario.advertencias === 1 ? '1 advertencia' : `${usuario.advertencias} advertencias`}
-                    color={colores.aviso}
-                    fondo={colores.avisoSuave}
-                  />
-                )}
+                <EtiquetasDeAntecedentes
+                  reportesEliminados={usuario.reportesEliminados}
+                  advertencias={usuario.advertencias}
+                />
               </View>
 
               <Text style={styles.detalle}>
-                Se registró {haceCuanto(usuario.fechaRegistro)} · {usuario.puntosDeConfianza}{' '}
-                {Math.abs(usuario.puntosDeConfianza) === 1 ? 'punto' : 'puntos'} de confianza
+                Se registró {haceCuanto(usuario.fechaRegistro)} · {usuario.reportesVigentes}{' '}
+                {usuario.reportesVigentes === 1 ? 'reporte publicado' : 'reportes publicados'}
               </Text>
 
               <Boton
