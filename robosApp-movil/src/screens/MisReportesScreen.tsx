@@ -81,7 +81,7 @@ export function MisReportesScreen() {
         // scroll infinito: pide la página siguiente al acercarse al final
         onEndReached={cargarMas}
         onEndReachedThreshold={0.5}
-        ListFooterComponent={cargandoMas ? <ActivityIndicator style={styles.cargando} color={colores.primarioTexto} /> : null}
+        ListFooterComponent={cargandoMas ? <ActivityIndicator style={styles.cargando} color={colores.primarioTexto} /> : undefined}
         ListEmptyComponent={
           cargando ? (
             <ActivityIndicator style={styles.cargando} color={colores.primarioTexto} />
@@ -92,7 +92,7 @@ export function MisReportesScreen() {
               texto="Si viste un robo o algo sospechoso, avisales a tus vecinos."
               accion={{ texto: 'Hacer un reporte', onPress: () => router.push('/publicar') }}
             />
-          ) : null
+          ) : undefined
         }
       />
     </View>

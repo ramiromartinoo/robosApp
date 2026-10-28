@@ -270,10 +270,10 @@ export function FeedScreen() {
                 accion={{ texto: 'Hacer un reporte', onPress: () => router.push('/publicar') }}
               />
             )
-          ) : null
+          ) : undefined
         }
         ListFooterComponent={
-          cargando && !refrescando ? <ActivityIndicator style={styles.cargando} color={colores.primarioTexto} /> : null
+          cargando && !refrescando ? <ActivityIndicator style={styles.cargando} color={colores.primarioTexto} /> : undefined
         }
       />
 

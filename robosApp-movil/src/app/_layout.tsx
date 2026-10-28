@@ -54,6 +54,9 @@ function Navegacion() {
     <Stack
       screenOptions={{
         headerStyle: { backgroundColor: colores.primario },
+        // desde el SDK 58 el encabezado es transparente por defecto en iOS y el contenido pasa por debajo;
+        // la app usa la barra verde sólida
+        headerTransparent: false,
         headerTintColor: colores.textoSobreColor,
         headerTitleStyle: { fontSize: 20, fontWeight: '700' },
         headerTitleAlign: 'center',
