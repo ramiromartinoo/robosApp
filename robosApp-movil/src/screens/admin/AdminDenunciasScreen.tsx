@@ -9,7 +9,7 @@ import {
   BotonCargarMas,
   DistanciaAlLugar,
   EstadoDeLista,
-  EtiquetaDeConfianza,
+  EtiquetasDeAntecedentes,
   Etiqueta,
   PantallaConLista,
   Tarjeta,
@@ -111,7 +111,7 @@ export function AdminDenunciasScreen() {
                   fondo={colores.negarSuave}
                 />
                 <Etiqueta texto={categoria.nombre} color={categoria.color} fondo={categoria.fondo} />
-                <EtiquetaDeConfianza nivel={posteo.autorConfianza} />
+                <EtiquetasDeAntecedentes {...posteo.antecedentesDelAutor} />
                 {posteo.estado === 'EN_REVISION' && (
                   <Etiqueta texto="Oculto del feed" color={colores.aviso} fondo={colores.avisoSuave} />
                 )}

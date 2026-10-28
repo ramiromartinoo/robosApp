@@ -128,11 +128,6 @@ function TarjetaDeMiReporte({ reporte, onEditar, onEliminar }: TarjetaProps) {
         </View>
       )}
 
-      <Text style={styles.detalle}>
-        {reporte.confirmaciones} {reporte.confirmaciones === 1 ? 'vecino lo confirmó' : 'vecinos lo confirmaron'} ·{' '}
-        {reporte.negaciones} {reporte.negaciones === 1 ? 'dijo' : 'dijeron'} que no fue así
-      </Text>
-
       {reporte.estado === 'EN_REVISION' && (
         <View style={styles.revision}>
           <Ionicons name="alert-circle-outline" size={17} color={colores.aviso} />

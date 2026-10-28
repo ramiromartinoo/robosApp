@@ -19,12 +19,11 @@ import com.proyectApp.robosApp.entity.Usuario;
 import com.proyectApp.robosApp.exception.ConflictoException;
 import com.proyectApp.robosApp.exception.RecursoNoEncontradoException;
 import com.proyectApp.robosApp.repository.AceptacionTerminosRepository;
-import com.proyectApp.robosApp.repository.ConfirmacionRepository;
 import com.proyectApp.robosApp.repository.DenunciaRepository;
 import com.proyectApp.robosApp.repository.PosteoRepository;
 import com.proyectApp.robosApp.repository.SugerenciaRepository;
 import com.proyectApp.robosApp.repository.UsuarioRepository;
-import com.proyectApp.robosApp.service.ReputacionService.Reputacion;
+import com.proyectApp.robosApp.service.AntecedentesService.Antecedentes;
 
 import lombok.RequiredArgsConstructor;
 
@@ -35,18 +34,17 @@ public class AdminUsuarioService {
 	private final UsuarioRepository usuarioRepository;
 	private final PosteoRepository posteoRepository;
 	private final DenunciaRepository denunciaRepository;
-	private final ConfirmacionRepository confirmacionRepository;
 	private final AceptacionTerminosRepository aceptacionRepository;
 	private final SugerenciaRepository sugerenciaRepository;
-	private final ReputacionService reputacionService;
+	private final AntecedentesService antecedentesService;
 
 	@Transactional(readOnly = true)
 	public PaginaResponse<UsuarioResponse> listar(int pagina, int tamanio) {
 		Page<Usuario> usuarios = usuarioRepository
 				.findAll(Paginacion.masRecientesPrimero(pagina, tamanio, "fechaRegistro"));
-		Map<Long, Reputacion> reputaciones = reputacionService
+		Map<Long, Antecedentes> antecedentes = antecedentesService
 				.deUsuarios(usuarios.getContent().stream().map(Usuario::getId).toList());
-		return PaginaResponse.desde(usuarios.map(usuario -> conReputacion(usuario, reputaciones)));
+		return PaginaResponse.desde(usuarios.map(usuario -> conAntecedentes(usuario, antecedentes)));
 	}
 
 	// Otras cuentas que publicaron desde el mismo teléfono o la misma conexión (vale también para administradores)
@@ -72,7 +70,7 @@ public class AdminUsuarioService {
 	public UsuarioResponse cambiarEstado(Long id, EstadoUsuario estado) {
 		Usuario usuario = buscarCliente(id);
 		usuario.setEstado(estado);
-		return conReputacion(usuario, reputacionService.deUsuarios(List.of(id)));
+		return conAntecedentes(usuario, antecedentesService.deUsuarios(List.of(id)));
 	}
 
 	// Borrado definitivo del usuario y de todo lo suyo. No se puede deshacer.
@@ -81,7 +79,6 @@ public class AdminUsuarioService {
 	public void eliminar(Long id) {
 		Usuario usuario = buscarCliente(id);
 		// el orden importa: primero lo que apunta a sus posteos, después los posteos, al final el usuario
-		confirmacionRepository.eliminarDeUsuarioYDeSusPosteos(id);
 		denunciaRepository.eliminarDeUsuarioYDeSusPosteos(id);
 		posteoRepository.eliminarDeUsuario(id);
 		aceptacionRepository.eliminarDeUsuario(id);
@@ -89,9 +86,8 @@ public class AdminUsuarioService {
 		usuarioRepository.delete(usuario);
 	}
 
-	private UsuarioResponse conReputacion(Usuario usuario, Map<Long, Reputacion> reputaciones) {
-		Reputacion reputacion = reputaciones.get(usuario.getId());
-		return UsuarioResponse.desde(usuario, reputacion.nivel(), reputacion.puntos());
+	private UsuarioResponse conAntecedentes(Usuario usuario, Map<Long, Antecedentes> antecedentes) {
+		return UsuarioResponse.desde(usuario, antecedentes.get(usuario.getId()));
 	}
 
 	private Usuario buscarCliente(Long id) {

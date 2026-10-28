@@ -61,7 +61,7 @@ Después de cambiar este archivo hay que reiniciar Expo.
 
 - **Entrar:** con mail y contraseña, crear una cuenta o recuperar la contraseña (Firebase manda el mail).
 - **Bienvenida:** pide aceptar los términos y condiciones la primera vez y cada vez que cambian.
-- **Inicio:** feed de reportes con filtros por tipo de hecho y por distancia. Cada reporte muestra a cuántos metros ocurrió y permite confirmarlo, negarlo, denunciarlo o ver la zona en el mapa.
+- **Inicio:** feed de reportes con filtros por tipo de hecho y por distancia. Cada reporte muestra a cuántos metros ocurrió y permite denunciarlo (si no es un robo o no corresponde) o ver la zona en el mapa.
 - **Reportar:** formulario con tipo de hecho, descripción, fecha y ubicación (GPS y un pin que se ajusta moviendo el mapa).
 - **Mapa:** mapa de calor de las últimas 3 horas, 1 día o 7 días.
 - **Mi cuenta:** mis reportes (editar y eliminar), sugerencias, el modo claro u oscuro, cerrar sesión y, para administradores, el panel de moderación.

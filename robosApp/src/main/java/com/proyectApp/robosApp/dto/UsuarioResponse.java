@@ -3,9 +3,9 @@ package com.proyectApp.robosApp.dto;
 import java.time.LocalDateTime;
 
 import com.proyectApp.robosApp.entity.EstadoUsuario;
-import com.proyectApp.robosApp.entity.NivelDeConfianza;
 import com.proyectApp.robosApp.entity.Rol;
 import com.proyectApp.robosApp.entity.Usuario;
+import com.proyectApp.robosApp.service.AntecedentesService.Antecedentes;
 
 // Vista de un usuario para el panel de administración (incluye el email: no usar en endpoints públicos)
 public record UsuarioResponse(
@@ -16,11 +16,11 @@ public record UsuarioResponse(
 		EstadoUsuario estado,
 		int advertencias,
 		LocalDateTime fechaRegistro,
-		// reputación (ver ReputacionService), incluido DUDOSO, y los puntos de los que sale
-		NivelDeConfianza confianza,
-		int puntosDeConfianza) {
+		// antecedentes (ver AntecedentesService): reportes publicados y reportes que eliminó la moderación
+		long reportesVigentes,
+		long reportesEliminados) {
 
-	public static UsuarioResponse desde(Usuario usuario, NivelDeConfianza confianza, int puntosDeConfianza) {
+	public static UsuarioResponse desde(Usuario usuario, Antecedentes antecedentes) {
 		return new UsuarioResponse(
 				usuario.getId(),
 				usuario.getEmail(),
@@ -29,8 +29,8 @@ public record UsuarioResponse(
 				usuario.getEstado(),
 				usuario.getAdvertencias(),
 				usuario.getFechaRegistro(),
-				confianza,
-				puntosDeConfianza);
+				antecedentes.reportesVigentes(),
+				antecedentes.reportesEliminados());
 	}
 
 }

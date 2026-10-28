@@ -1,13 +1,11 @@
 import { pedir } from './cliente';
 import {
   Categoria,
-  Confirmaciones,
   MiReporte,
   MotivoDenuncia,
   Pagina,
   Posteo,
   PuntoHeatmap,
-  TipoConfirmacion,
 } from './tipos';
 
 const TAMANIO_PAGINA = 20;
@@ -74,18 +72,6 @@ export function editarReporte(id: number, cambios: CambiosDeReporte): Promise<Mi
 
 export function eliminarReporte(id: number): Promise<void> {
   return pedir<void>(`/reportes/${id}`, { method: 'DELETE' });
-}
-
-// Votar de nuevo cambia el voto anterior
-export function votar(posteoId: number, tipo: TipoConfirmacion): Promise<Confirmaciones> {
-  return pedir<Confirmaciones>(`/reportes/${posteoId}/confirmar`, {
-    method: 'POST',
-    body: JSON.stringify({ tipo }),
-  });
-}
-
-export function quitarVoto(posteoId: number): Promise<Confirmaciones> {
-  return pedir<Confirmaciones>(`/reportes/${posteoId}/confirmar`, { method: 'DELETE' });
 }
 
 export function denunciar(posteoId: number, motivo: MotivoDenuncia): Promise<void> {
