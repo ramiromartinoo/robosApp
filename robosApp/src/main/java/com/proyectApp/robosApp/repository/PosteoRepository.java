@@ -94,6 +94,9 @@ public interface PosteoRepository extends JpaRepository<Posteo, Long> {
 	// Para el límite de publicaciones por hora
 	long countByUsuarioIdAndFechaHoraPublicacionAfter(Long usuarioId, LocalDateTime desde);
 
+	// Para el límite de publicaciones por hora desde una misma conexión (sumando todas las cuentas)
+	long countByIpPublicacionAndFechaHoraPublicacionAfter(String ipPublicacion, LocalDateTime desde);
+
 	// Listado del panel admin: los dos filtros son opcionales
 	@EntityGraph(attributePaths = "usuario")
 	@Query("""

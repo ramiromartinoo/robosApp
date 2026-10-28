@@ -34,6 +34,26 @@ class PublicacionesTest extends PruebaDeIntegracion {
 	}
 
 	@Test
+	@DisplayName("Pasado el máximo de publicaciones por hora desde una misma IP, se rechaza aunque sea otra cuenta")
+	void limiteDePublicacionesPorIp() throws Exception {
+		// en el perfil de pruebas el máximo por IP es 5; todos los pedidos de prueba llegan desde 127.0.0.1
+		for (int i = 0; i < 3; i++) {
+			publicar(CLIENTE);
+		}
+		publicar(CLIENTE_2);
+		publicar(CLIENTE_2);
+		pedirConJson(post("/reportes"), CLIENTE_3, reporte("Cuenta nueva, misma conexión"))
+				.andExpect(status().isTooManyRequests());
+
+		// desde otra conexión la misma cuenta puede publicar
+		pedirConJson(post("/reportes").with(pedido -> {
+			pedido.setRemoteAddr("10.0.0.7");
+			return pedido;
+		}), CLIENTE_3, reporte("Desde otra conexión"))
+				.andExpect(status().isCreated());
+	}
+
+	@Test
 	@DisplayName("Borrar un reporte no devuelve el cupo de publicaciones por hora")
 	void borrarNoDevuelveElCupo() throws Exception {
 		for (int i = 0; i < 3; i++) {
